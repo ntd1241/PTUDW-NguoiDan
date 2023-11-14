@@ -639,8 +639,10 @@ locationInput.addEventListener("keypress", (e) => {
 });
 
 //Foward geo-location
+const fowardMaker = new mapboxgl.Marker({ color: "red" });
 map.on("click", async (e) => {
   const { lat, lng } = e.lngLat;
+  fowardMaker.setLngLat([lng, lat]).addTo(map);
   const query = `${lat}+${lng}`;
   const apiUrl = "https://api.opencagedata.com/geocode/v1/json";
   const apiKey = "8c7c7c956fdd4a598e2301d88cb48135";
