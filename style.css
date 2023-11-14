@@ -1,0 +1,75 @@
+header nav {
+    height: 4rem;
+    z-index: 10;
+}
+
+main {
+    height: calc(100vh - 4rem);
+    overflow: hidden;
+}
+#mapbox{
+    position:absolute;
+    width:100%;
+    height:100%;
+}
+#map-control-buttons {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
+
+#map-view-button {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    overflow: visible;
+}
+
+#map-view-button button {
+    border-radius: 8px;
+}
+
+#map-details {
+    overflow-y: scroll;
+}
+
+.btn-map {
+    opacity: 90%;
+}
+
+.btn-black-outline {
+    border-radius: 8px;
+    border: 2px solid rgba(34, 34, 34, 0.1);
+    overflow: hidden;
+}
+
+.details-info {
+    font-weight: bold;
+}
+
+.btn-icon {
+    border: none;
+    width: 32px;
+    height: 32px;
+    background-color: white;
+}
+
+#map-api {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+.mapboxgl-ctrl-logo {
+    display: none !important;
+}
+
+div.dataTables_length {
+    display: none;
+}
+
+a.nav-link.active {
+    color: #0D6EFD !important;
+    border-bottom: 3px solid #0D6EFD;
+}
