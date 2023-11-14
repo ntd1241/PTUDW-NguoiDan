@@ -25,13 +25,9 @@ const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstra
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYm9vbnJlYWwiLCJhIjoiY2xvOWZ0eXQ2MDljNzJybXRvaW1oaXR3NyJ9.iu4mRTZ3mUFb7ggRtyPcWw';
 
-// const map = new mapboxgl.Map({
-//     container: 'map-api', // container ID
-//     // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-//     style: 'mapbox://styles/mapbox/streets-v12', // style URL
-//     center: [-74.5, 40], // starting position [lng, lat]
-//     zoom: 9 // starting zoom
-// });
+const nav = new mapboxgl.NavigationControl();
+map.addControl(nav, 'top-right');
 
-// const nav = new mapboxgl.NavigationControl();
-// map.addControl(nav, 'top-right');
+function onSubmit(token) {
+    document.getElementById("report-form").submit();
+  }

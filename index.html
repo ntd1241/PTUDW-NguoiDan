@@ -12,6 +12,7 @@
     integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
   <link rel="stylesheet" href="style.css">
 
+  <!-- Mapbox -->
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
 
@@ -19,6 +20,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.13.7/features/pageResize/dataTables.pageResize.min.js">
+
+  <!-- Recaptcha -->
+  <script async src="https://www.google.com/recaptcha/api.js"></script>
+
+
 </head>
 
 <body class="bg-light text-dark">
@@ -98,7 +104,7 @@
                     <h6 class="mt-2" id="location-name">Chưa có dữ liệu</h6>
                     <p id="location-address">Vui lòng chọn điểm trên bảng đồ để xem!</p>
                     <div class="d-flex justify-content-end">
-                      <button type="button" class="btn btn-outline-danger fw-semibold">
+                      <button type="button" class="btn btn-outline-danger fw-semibold" onclick="document.querySelector('#report').tab('show');">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         BÁO CÁO VI PHẠM
                       </button>
@@ -180,10 +186,13 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-auto">
+                <div class="col-auto d-flex flex-column justify-content-between">
                   <button type="button" class="btn btn-outline-danger" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">
                     <i class="fa-solid fa-file-circle-plus"></i>
                     Tạo báo cáo mới</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                    Xem tất cả báo cáo của bạn</button>
                 </div>
               </div>
               <div class="border-bottom mb-3"></div>
@@ -295,95 +304,99 @@
     </div>
   </main>
   <!-- Modals -->
-  <div class="modal" id="reportModal-reporterInfo"  data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 1/2</span></h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <h6 class="mb-3">Vui lòng nhập thông tin chi tiết của bạn!</h6>
-          <div class="mb-3">
-            <label for="form-reporter-name" class="form-label">Họ và tên</label>
-            <div class="input-group has-validation">
-              <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-              <input type="text" class="form-control is-invalid" id="form-reporter-name" placeholder="Họ và tên" required>
+  <form action="" method="post" id="report-form">
+    <div class="modal" id="reportModal-reporterInfo"  data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 1/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <h6 class="mb-3">Vui lòng nhập thông tin chi tiết của bạn!</h6>
+            <div class="mb-3">
+              <label for="form-reporter-name" class="form-label">Họ và tên</label>
+              <div class="input-group has-validation">
+                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                <input type="text" class="form-control is-invalid" id="form-reporter-name" placeholder="Họ và tên" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="form-reporter-phone" class="form-label">Số điện thoại</label>
+              <div class="input-group has-validation">
+                <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                <input type="text" class="form-control is-invalid" id="form-reporter-phone" placeholder="SĐT" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="form-reporter-email" class="form-label">Địa chỉ Email</label>
+              <div class="input-group has-validation">
+                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                <input type="text" class="form-control is-invalid" id="form-reporter-email" placeholder="Email" required>
+              </div>
             </div>
           </div>
-          <div class="mb-3">
-            <label for="form-reporter-phone" class="form-label">Số điện thoại</label>
-            <div class="input-group has-validation">
-              <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-              <input type="text" class="form-control is-invalid" id="form-reporter-phone" placeholder="SĐT" required>
-            </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" data-bs-target="#reportModal-details" data-bs-toggle="modal">Bước tiếp theo</button>
           </div>
-          <div class="mb-3">
-            <label for="form-reporter-email" class="form-label">Địa chỉ Email</label>
-            <div class="input-group has-validation">
-              <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-              <input type="text" class="form-control is-invalid" id="form-reporter-email" placeholder="Email" required>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" data-bs-target="#reportModal-details" data-bs-toggle="modal">Bước tiếp theo</button>
         </div>
       </div>
     </div>
-  </div>
-  <div class="modal" id="reportModal-details" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <h6 class="mb-3">Vui lòng điền nội dung báo cáo!</h6>
-          <div class="mb-3">
-            <label for="form-report-type" class="form-label">Hình thức báo cáo</label>
-            <select class="form-select is-invalid" id="form-report-type" required>
-              <option selected disabled value="">Vui lòng chọn hình thức báo cáo!</option>
-              <option value="TGSP">Tố giác sai phạm</option>
-              <option value="DKND">Đăng ký nội dung</option>
-              <option value="DGYK">Đóng góp ý kiến</option>
-              <option value="GDTM">Giải đáp thắc mắc</option>
-            </select>
+    <div class="modal" id="reportModal-details" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="mb-3">
-            <label for="form-report-content" class="form-label">Nội dung báo cáo</label>
-            <textarea class="form-control is-invalid" id="form-report-content" placeholder="Vui lòng nhập nội dung báo cáo." required></textarea>
+          <div class="modal-body">
+            <h6 class="mb-3">Vui lòng điền nội dung báo cáo!</h6>
+            <div class="mb-3">
+              <label for="form-report-type" class="form-label">Hình thức báo cáo</label>
+              <select class="form-select is-invalid" id="form-report-type" required>
+                <option selected disabled value="">Vui lòng chọn hình thức báo cáo!</option>
+                <option value="TGSP">Tố giác sai phạm</option>
+                <option value="DKND">Đăng ký nội dung</option>
+                <option value="DGYK">Đóng góp ý kiến</option>
+                <option value="GDTM">Giải đáp thắc mắc</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="form-report-content" class="form-label">Nội dung báo cáo</label>
+              <textarea class="form-control is-invalid" id="form-report-content" placeholder="Vui lòng nhập nội dung báo cáo." required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="form-report-images" class="form-label">Hình ảnh minh hoạ</label>
+              <input class="form-control" type="file" id="form-report-images" multiple name="img" accept="image/*">
+            </div>
           </div>
-          <div class="mb-3">
-            <label for="form-report-images" class="form-label">Hình ảnh minh hoạ</label>
-            <input class="form-control" type="file" id="form-report-images" multiple name="img" accept="image/*">
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">Quay trở lại</button>
+            <button class="btn btn-primary" data-bs-target="#reportModal-finish" data-bs-toggle="modal">Hoàn tất</button>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">Quay trở lại</button>
-          <button class="btn btn-primary" data-bs-target="#reportModal-finish" data-bs-toggle="modal">Hoàn tất</button>
         </div>
       </div>
     </div>
-  </div>
-  <div class="modal" id="reportModal-finish" aria-hidden="true" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Hoàn tất</span></h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <h6 class="mb-3 text-success"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn đã được gửi và đang chờ xét duyệt!</h6>
-          Vui lòng kiểm tra hòm thư Email thường xuyên để nhận được kết quả.
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng cửa sổ</button>
+    <div class="modal" id="reportModal-finish" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Hoàn tất</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <h6 class="mb-3 text-success"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn đã được gửi và đang chờ xét duyệt!</h6>
+            Vui lòng kiểm tra hòm thư Email thường xuyên để nhận được kết quả.
+            <div class="g-recaptcha" data-sitekey="6LfXqA4pAAAAAIQXSswPpJud-eoxAZlOPKuiz8GM" data-action="LOGIN"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng cửa sổ</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </form>
+
 
   <footer>
     <!-- place footer here -->
