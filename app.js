@@ -16,6 +16,15 @@ table.on('click', 'tbody tr', (e) => {
     }
 });
  
+document.querySelectorAll('.toBCVP').forEach(item => {
+    item.addEventListener('click', () => {
+        var triggerEl = document.querySelector('#myTab #report-tab');
+        bootstrap.Tab.getOrCreateInstance(triggerEl).show();
+
+        //Cap nhat du lieu
+    });
+})
+
 /*document.querySelector('#button').addEventListener('click', function () {
     table.row('.selected').remove().draw(false);
 });*/
@@ -24,9 +33,6 @@ const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]
 const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYm9vbnJlYWwiLCJhIjoiY2xvOWZ0eXQ2MDljNzJybXRvaW1oaXR3NyJ9.iu4mRTZ3mUFb7ggRtyPcWw';
-
-const nav = new mapboxgl.NavigationControl();
-map.addControl(nav, 'top-right');
 
 function onSubmit(token) {
     document.getElementById("report-form").submit();

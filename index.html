@@ -39,12 +39,12 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse bg-light" id="collapsibleNavId">
-        <ul class="navbar-nav nav mx-auto mt-2 mt-lg-0 me-0">
+        <ul class="navbar-nav nav mx-auto mt-2 mt-lg-0 me-0" id="myTab">
           <li class="nav-item px-2" role="presentation">
             <a class="nav-link active" href="#" id="map-tab" data-bs-toggle="tab" data-bs-target="#map" type="button" role="tab" aria-controls="map-tab" aria-selected="true">Bản đồ</a>
           </li>
           <li class="nav-item px-2" role="presentation">
-            <a class="nav-link" href="#" id="report-tab" data-bs-toggle="tab" data-bs-target="#report" type="button" role="tab" aria-controls="report-tab" aria-selected="true">Báo cáo VP</a>
+            <a class="nav-link" href="#report" id="report-tab" data-bs-toggle="tab" data-bs-target="#report" type="button" role="tab" aria-controls="report-tab" aria-selected="true">Báo cáo VP</a>
           </li>
           <li class="nav-item px-2" role="presentation">
             <a class="nav-link" href="#" id="about-us-tab" data-bs-toggle="tab" data-bs-target="#about-us" type="button" role="tab" aria-controls="about-us-tab" aria-selected="true">Về chúng tôi</a>
@@ -104,7 +104,7 @@
                     <h6 class="mt-2" id="location-name">Chưa có dữ liệu</h6>
                     <p id="location-address">Vui lòng chọn điểm trên bảng đồ để xem!</p>
                     <div class="d-flex justify-content-end">
-                      <button type="button" class="btn btn-outline-danger fw-semibold" onclick="document.querySelector('#report').tab('show');">
+                      <button type="button" class="btn btn-outline-danger fw-semibold toBCVP">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         BÁO CÁO VI PHẠM
                       </button>
@@ -132,7 +132,7 @@
                                 <span id="board-contract" class="btn-icon fs-3" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-title="Hợp đồng quảng cáo" data-bs-container="body" data-bs-placement="left" data-bs-content="Ngày hết hạn: 01-01-2003">
                                     <i class="fa-solid fa-circle-exclamation text-primary"></i>
                                 </span>
-                                <button type="button" class="btn btn-outline-danger fw-semibold">
+                                <button type="button" class="btn btn-outline-danger fw-semibold toBCVP">
                                     <i class="fa-solid fa-triangle-exclamation"></i>
                                     BÁO CÁO VI PHẠM
                                   </button>
@@ -372,6 +372,23 @@
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">Quay trở lại</button>
+            <button class="btn btn-primary" data-bs-target="#reportModal-captcha" data-bs-toggle="modal">Tiếp tục</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-captcha" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body d-flex justify-content-center">
+            <div class="g-recaptcha" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#reportModal-details" data-bs-toggle="modal">Quay trở lại</button>
             <button class="btn btn-primary" data-bs-target="#reportModal-finish" data-bs-toggle="modal">Hoàn tất</button>
           </div>
         </div>
@@ -387,7 +404,6 @@
           <div class="modal-body">
             <h6 class="mb-3 text-success"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn đã được gửi và đang chờ xét duyệt!</h6>
             Vui lòng kiểm tra hòm thư Email thường xuyên để nhận được kết quả.
-            <div class="g-recaptcha" data-sitekey="6LfXqA4pAAAAAIQXSswPpJud-eoxAZlOPKuiz8GM" data-action="LOGIN"></div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng cửa sổ</button>
