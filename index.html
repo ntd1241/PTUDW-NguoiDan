@@ -24,6 +24,8 @@
   <!-- Recaptcha -->
   <script async src="https://www.google.com/recaptcha/api.js"></script>
 
+  <!-- WYSIWYG CKEditor-->
+  <script src="node_modules/@ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
 
 </head>
 
@@ -33,7 +35,7 @@
     <nav class="navbar navbar-expand-md navbar-light fw-semibold bg-light">
       <div class="container">
       <a class="navbar-brand" href="#">Bản đồ bảng quảng cáo TP.HCM
-        <span class="ms-2 badge bg-primary">Group 14</span></a>
+        <span class="ms-2 badge bg-primary">Nhóm 14</span></a>
       <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavId" aria-controls="collapsibleNavId"
         aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -192,7 +194,7 @@
                     Tạo báo cáo mới</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">
                     <i class="fa-solid fa-file-circle-plus"></i>
-                    Xem tất cả báo cáo của bạn</button>
+                    Báo cáo của bạn</button>
                 </div>
               </div>
               <div class="border-bottom mb-3"></div>
@@ -362,8 +364,11 @@
               </select>
             </div>
             <div class="mb-3">
-              <label for="form-report-content" class="form-label">Nội dung báo cáo</label>
-              <textarea class="form-control is-invalid" id="form-report-content" placeholder="Vui lòng nhập nội dung báo cáo." required></textarea>
+              <!-- <label for="form-report-content" class="form-label">Nội dung báo cáo</label>
+              <textarea class="form-control is-invalid" id="form-report-content" placeholder="Vui lòng nhập nội dung báo cáo." required></textarea> -->
+              <div class="form-label">Nội dung báo cáo</div>
+              <div id="editor">
+              </div>
             </div>
             <div class="mb-3">
               <label for="form-report-images" class="form-label">Hình ảnh minh hoạ</label>
