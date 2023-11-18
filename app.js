@@ -37,5 +37,39 @@ const popoverList = [...popoverTriggerList].map(
 );
 
 function onSubmit(token) {
-  document.getElementById("report-form").submit();
-}
+
+    document.getElementById("report-form").submit();
+  }
+
+  ClassicEditor.defaultConfig = {
+    toolbar: {
+      items: [
+        'undo', 'redo',
+        '|', 'heading',
+        '|', 'bold', 'italic',
+        '|', 'bulletedList', 'numberedList', 'blockQuote',
+        '|', 'insertTable',
+      ]
+    },
+    image: {
+      toolbar: [
+        'imageStyle:full',
+        'imageStyle:side',
+        '|',
+        'imageTextAlternative'
+      ]
+    },
+    table: {
+      contentToolbar: [ 'tableColumn', 'tableRow', 'mergeTableCells' ]
+    },
+    language: 'en'
+  };
+
+ClassicEditor.create( document.querySelector( '#editor' ))
+    .then( editor => {
+        console.log( editor );
+    } )
+    .catch( error => {
+        console.error( error );
+    } );
+
