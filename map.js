@@ -650,7 +650,6 @@ map.on("load", async () => {
     const HTMLthumbnail = document.querySelector("#board-thumbnail");
     const HTMLpagination = document.querySelector("#board-pagination");
     const HTMLboardContract = document.querySelector("#board-contract");
-    console.log(HTMLboardContract);
     if (adsData.length == 0) {
       HTMLid.innerHTML = "Chưa có thông tin";
       HTMLnumber.innerHTML = `<p>Địa điểm này có 0 quảng cáo</p>`;
@@ -1263,7 +1262,9 @@ formSubmit.addEventListener("click", async (e) => {
 //Get table when click placement report
 const viewDetailButtonEvent = (e) => {
   e.preventDefault();
+
   const clickedRow = e.target.closest("tr");
+  console.log(clickedRow)
   if (clickedRow) {
     const reportData = JSON.parse(clickedRow.dataset.report);
     const images =
@@ -1341,17 +1342,24 @@ reportLocationButton.addEventListener("click", async (e) => {
         item.ReportType.type,
         item.createdAt.split("T")[0],
         item.status,
-        '<a href="#" target="_blank" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
+        '<a href="#" class="view-detail" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
       ];
-      dataTable.row.add(rowDataArr);
+      // rowDataArr.push(JSON.stringify(item))
+      const newRow = $('<tr>').attr('data-report', JSON.stringify(item));
+      rowDataArr.forEach(function (data) {
+        newRow.append('<td>' + data + '</td>');
+      });
+      dataTable.row.add(newRow);
     });
 
     dataTable.draw();
-  });
-  //Re create click event
-  const viewButtons = document.querySelectorAll("td a");
-  viewButtons.forEach((item) => {
-    item.addEventListener("click", viewDetailButtonEvent);
+
+    //Re create click event
+    const viewButtons = document.querySelectorAll("td a");
+    console.log(viewButtons);
+    viewButtons.forEach((item) => {
+      item.addEventListener("click", viewDetailButtonEvent);
+    });
   });
 });
 
@@ -1404,17 +1412,16 @@ reportBoardButton.addEventListener("click", async (e) => {
         item.ReportType.type,
         item.createdAt.split("T")[0],
         item.status,
-        '<a href="#" target="_blank" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
+        '<a href="#"  rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
       ];
-      console.log(rowDataArr);
       dataTable.row.add(rowDataArr);
     });
 
     dataTable.draw();
-  });
-  const viewButtons = document.querySelectorAll("td a");
-  viewButtons.forEach((item) => {
-    item.addEventListener("click", viewDetailButtonEvent);
+    const viewButtons = document.querySelectorAll("td a");
+    viewButtons.forEach((item) => {
+      item.addEventListener("click", viewDetailButtonEvent);
+    });
   });
 });
 
@@ -1447,17 +1454,17 @@ viewSelfReportButton.addEventListener("click", async (e) => {
         item.ReportType.type,
         item.createdAt.split("T")[0],
         item.status,
-        '<a href="#" target="_blank" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
+        '<a href="#"  rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
       ];
       console.log(rowDataArr);
       dataTable.row.add(rowDataArr);
     });
 
     dataTable.draw();
-  });
-  const viewButtons = document.querySelectorAll("td a");
-  viewButtons.forEach((item) => {
-    item.addEventListener("click", viewDetailButtonEvent);
+    const viewButtons = document.querySelectorAll("td a");
+    viewButtons.forEach((item) => {
+      item.addEventListener("click", viewDetailButtonEvent);
+    });
   });
 });
 
