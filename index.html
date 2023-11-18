@@ -23,6 +23,7 @@
 
   <!-- Recaptcha -->
   <script async src="https://www.google.com/recaptcha/api.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
 
 </head>
@@ -83,7 +84,7 @@
                                 <label class="form-check-label stretched-link" for="thirdCheckboxStretched">Các điểm QC bị vi phạm</label>
                               </li>
                               <li class="dropdown-item list-group-item px-3">
-                                <input class="form-check-input me-2" type="checkbox" value="" id="forthCheckboxStretched" checked>
+                                <input class="form-check-input me-2" type="checkbox" value="" id="forthCheckboxStretched" >
                                 <label class="form-check-label stretched-link" for="forthCheckboxStretched">Báo cáo vi phạm</label>
                               </li>
                         </ul>
@@ -104,7 +105,7 @@
                     <h6 class="mt-2" id="location-name">Chưa có dữ liệu</h6>
                     <p id="location-address">Vui lòng chọn điểm trên bảng đồ để xem!</p>
                     <div class="d-flex justify-content-end">
-                      <button type="button" class="btn btn-outline-danger fw-semibold toBCVP">
+                      <button type="button" class="btn btn-outline-danger fw-semibold toBCVP" id="location-report">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                         BÁO CÁO VI PHẠM
                       </button>
@@ -114,10 +115,10 @@
                     <p id="num-ads"></p>
                     <div class="card">
                         <div class="card-body">
-                          <span class="text-muted">#ID: <span class="fw-semibold" id="board-id">123</span></span>
+                          <span class="text-muted">#ID: <span class="fw-semibold" id="board-id">Chưa có thông tin</span></span>
                             <h4 class="card-title" id="board-title">
                               Trụ, cụm pano
-                              <span class="ms-2 badge bg-success" id="board-status">Đã quy hoạch</span></a>
+                              <span class="ms-2 badge bg-success" id="board-status"></span>
                             </h4>
                             <p class="card-text" id="board-address">Chưa có thông tin để hiển thị</p>
 
@@ -127,12 +128,12 @@
                                 Hình thức: <span class="details-info" id="board-form">Chưa có thông tin</span> <br>
                                 Phân loại: <span class="details-info" id="board-classification">Chưa có thông tin</span> <br>
                             </p>
-                            <img class="img-thumbnail mb-3" src="img/BangQC1.jpg" id="board-thumbnail" alt="">
+                            <img class="img-thumbnail mb-3" src="" id="board-thumbnail" alt="">
                             <div class="d-flex justify-content-between">
                                 <span id="board-contract" class="btn-icon fs-3" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-title="Hợp đồng quảng cáo" data-bs-container="body" data-bs-placement="left" data-bs-content="Ngày hết hạn: 01-01-2003">
                                     <i class="fa-solid fa-circle-exclamation text-primary"></i>
                                 </span>
-                                <button type="button" class="btn btn-outline-danger fw-semibold toBCVP">
+                                <button type="button" class="btn btn-outline-danger fw-semibold toBCVP" id="board-report">
                                     <i class="fa-solid fa-triangle-exclamation"></i>
                                     BÁO CÁO VI PHẠM
                                   </button>
@@ -142,17 +143,6 @@
                     <nav class="mt-3" aria-label="Page navigation">
                       <ul class="pagination" id="board-pagination">
                         <li class="page-item disabled">
-                          <a class="page-link" href="#" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                          </a>
-                        </li>
-                        <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                          <a class="page-link" href="#" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                          </a>
                         </li>
                       </ul>
                     </nav>
@@ -171,56 +161,65 @@
                     <div class="card-body">
                       <div class="row mb-2">
                         <div class="col">
-                          ID: <span class="fw-semibold" id="target-id">??????</span>
+                          ID: <span class="fw-semibold" id="target-id">Chưa chọn điểm</span>
                         </div>
                         <div class="col">
-                          Loại đối tượng: <span class="fw-semibold" id="target-type">Địa điểm</span>
+                          Loại đối tượng: <span class="fw-semibold" id="target-type">Chưa chọn điểm</span>
                         </div>
                         <div class="col-auto">
-                          Số báo cáo đã duyệt: <span class="fw-semibold" id="target-no-reports">5/10</span>
+                          Số báo cáo đã duyệt: <span class="fw-semibold" id="target-no-reports">Chưa chọn điểm</span>
                         </div>
                       </div>
                       <div>
-                        Địa chỉ: <span class="fw-semibold" id="target-address">Đồng Khởi - Nguyễn Du (Sở Văn hoá và Thể thao), Phường Bến Nghé, Quận 1</span>
+                        Địa chỉ: <span class="fw-semibold" id="target-address">Chưa chọn điểm</span>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="col-auto d-flex flex-column justify-content-between">
-                  <button type="button" class="btn btn-outline-danger" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">
+                  <button type="button" class="btn btn-outline-danger"  data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal" id="create-report">
                     <i class="fa-solid fa-file-circle-plus"></i>
                     Tạo báo cáo mới</button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">
+                  <button type="button" class="btn btn-outline-secondary"  id="view-self-report">
                     <i class="fa-solid fa-file-circle-plus"></i>
                     Xem tất cả báo cáo của bạn</button>
                 </div>
               </div>
               <div class="border-bottom mb-3"></div>
               <div id="table-container" class="flex-fill">
-                <table id="myTable" class="table table-striped h-100">
-                  <thead>
+                <table class="table" id="myTable" class="table table-striped h-100">
+                  <thead class="table-dark">
                       <tr>
                           <th>ID</th>
                           <th>Tên người báo cáo</th>
                           <th>Hình thức</th>
                           <th>Ngày tạo</th>
                           <th>Tình trạng</th>
+                          <th>Xem chi tiết</th>
                       </tr>
                   </thead>
                   <tbody>
                       <tr>
-                          <td>000001</td>
-                          <td>Nguyễn Văn A</td>
-                          <td>Tố giác sai phạm</td>
-                          <td>08:00 01-01-2003</td>
-                          <td class="text-secondary fw-semibold">Đang xử lý</td>
+                          <td>Chưa có thông tin</td>
+                          <td>Chưa có thông tin</td>
+                          <td>Chưa có thông tin</td>
+                          <td>Chưa có thông tin</td>
+                          <td class="text-secondary fw-semibold">Chưa có thông tin</td>
+                          <td>
+                            Chưa có thông tin
+                          </td>
                       </tr>
-                      <tr>
+                      <!-- <tr>
                           <td>000002</td>
                           <td>Nguyễn Văn B</td>
                           <td>Đăng ký nội dung</td>
                           <td>08:00 01-01-2003</td>
                           <td class="text-secondary fw-semibold">Đang xử lý</td>
+                          <td>
+                            <a href="#" target="_blank" rel="noopener noreferrer">
+                              <img src="./img/file.png" alt="" style="height:30px">
+                            </a>
+                          </td>
                       </tr>
                       <tr>
                           <td>000003</td>
@@ -228,6 +227,11 @@
                           <td>Đóng góp ý kiến</td>
                           <td>08:00 01-01-2003</td>
                           <td class="text-success fw-semibold">Đã xử lý xong</td>
+                          <td>
+                            <a href="#" target="_blank" rel="noopener noreferrer">
+                              <img src="./img/file.png" alt="" style="height:30px">
+                            </a>
+                          </td>
                       </tr>
                       <tr>
                           <td>000004</td>
@@ -235,7 +239,12 @@
                           <td>Giải đáp thắc mắc</td>
                           <td>08:00 01-01-2003</td>
                           <td class="text-success fw-semibold">Đã xử lý xong</td>
-                      </tr>
+                          <td>
+                            <a href="#" target="_blank" rel="noopener noreferrer">
+                              <img src="./img/file.png" alt="" style="height:30px">
+                            </a>
+                          </td>
+                      </tr> -->
                   </tbody>
               </table>
               </div>
@@ -246,29 +255,29 @@
             <div class="overflow-y-scroll h-100">
               <div class="card">
                 <div class="card-body">
-                  <span class="text-muted">#ID: <span class="fw-semibold" id="report-id">123</span></span>
+                  <span class="text-muted">#ID: <span class="fw-semibold" id="report-id">Chưa có thông tin</span></span>
                     <h4 class="card-title" id="report-type">
                       Tố giác sai phạm
-                      <span class="ms-2 badge bg-secondary" id="report-status">Đang xử lý</span></a>
+                      <span class="ms-2 badge bg-secondary" id="report-status">Chưa có thông tin</span>
                     </h4>
                     <p class="card-text">
-                      Ngày báo cáo: <span class="fw-semibold" id="report-datetime">08:00 01-01-2003</span>
+                      Ngày báo cáo: <span class="fw-semibold" id="report-datetime">Chưa có thông tin</span>
                 </div>
                 <ul class="list-group list-group-flush">
                   <li class="list-group-item">
                     <h6>Nội dung báo cáo</h6>
                     <p id="report-content">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias ullam hic consectetur nostrum veniam dignissimos reiciendis, nobis voluptas impedit aliquam ab quam architecto excepturi deleniti, repellendus ut vero tenetur necessitatibus!
+                      Chưa có thông tin
                     </p>
                     <h6>Hình ảnh minh hoạ</h6>
-                    <img class="img-thumbnail mb-3" src="img/BangQC1.jpg" id="report-img-1">
-                    <img class="img-thumbnail mb-3" src="img/BangQC1.jpg" id="repport-img-2">
+                    <img class="img-thumbnail mb-3" src="" id="report-img-1">
+                    <img class="img-thumbnail mb-3" src="" id="report-img-2">
                   </li>
                   <li class="list-group-item">
                     <h6>Thông tin người báo cáo</h6>
                     <p>
-                      Họ tên: <span class="fw-semibold" id="reporter-name">Nguyễn Văn A</span> <br>
-                      Địa chỉ Email: <span class="fw-semibold" id="reporter-email">123@gmail.com</span>
+                      Họ tên: <span class="fw-semibold" id="reporter-name">Chưa có thông tin</span> <br>
+                      Địa chỉ Email: <span class="fw-semibold" id="reporter-email">Chưa có thông tin</span>
                   </p>
                   </li>
                 </ul>
@@ -304,7 +313,6 @@
     </div>
   </main>
   <!-- Modals -->
-  <form action="" method="post" id="report-form">
     <div class="modal" id="reportModal-reporterInfo"  data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -389,7 +397,7 @@
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-target="#reportModal-details" data-bs-toggle="modal">Quay trở lại</button>
-            <button class="btn btn-primary" data-bs-target="#reportModal-finish" data-bs-toggle="modal">Hoàn tất</button>
+            <button class="btn btn-primary" data-bs-target="#reportModal-finish" data-bs-toggle="modal" id="report-submit">Hoàn tất</button>
           </div>
         </div>
       </div>
@@ -401,7 +409,7 @@
             <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Hoàn tất</span></h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" id="form-submit-result">
             <h6 class="mb-3 text-success"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn đã được gửi và đang chờ xét duyệt!</h6>
             Vui lòng kiểm tra hòm thư Email thường xuyên để nhận được kết quả.
           </div>
@@ -411,7 +419,6 @@
         </div>
       </div>
     </div>
-  </form>
 
 
   <footer>
@@ -431,6 +438,7 @@
   <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
 
   <script src="app.js"></script>
   <script src="./map.js"></script>
