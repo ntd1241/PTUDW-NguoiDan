@@ -1178,7 +1178,8 @@ formSubmit.addEventListener("click", async (e) => {
   const phone = document.querySelector("#form-reporter-phone").value;
 
   const type = document.querySelector("#form-report-type").value;
-  const content = document.querySelector("#form-report-content").value;
+  const content = editor.getData();
+  console.log(content);
 
   //Validate
   if (!formValidation({ name, email, phone, type, content })) {
@@ -1264,12 +1265,12 @@ const viewDetailButtonEvent = (e) => {
   e.preventDefault();
 
   const clickedRow = e.target.closest("tr");
-  console.log(clickedRow)
+
   if (clickedRow) {
     const reportData = JSON.parse(clickedRow.dataset.report);
     const images =
       reportData.image != null ? reportData.image.split(",") : undefined;
-    console.log(reportData);
+    // console.log(reportData);
 
     const HTMLreportId = document.querySelector("#report-id");
     const HTMLreportStatus = document.querySelector("#report-status");
@@ -1280,10 +1281,10 @@ const viewDetailButtonEvent = (e) => {
     const HTMLreporterName = document.querySelector("#reporter-name");
     const HTMLreporterEmail = document.querySelector("#reporter-email");
 
-    HTMLreportId.innerText = reportData.id;
-    HTMLreportStatus.innerText = reportData.status;
-    HTMLreportDatetime.innerText = reportData.createdAt.split("T")[0];
-    HTMLreportContent.innerText = reportData.reportContent;
+    HTMLreportId.innerHTML = reportData.id;
+    HTMLreportStatus.innerHTML = reportData.status;
+    HTMLreportDatetime.innerHTML = reportData.createdAt.split("T")[0];
+    HTMLreportContent.innerHTML = reportData.reportContent;
     if (images == undefined) {
       HTMLreportImg1.src = "";
       HTMlreportImg2.src = "";
@@ -1294,8 +1295,8 @@ const viewDetailButtonEvent = (e) => {
       HTMLreportImg1.src = "http://localhost:3000/" + images[0];
       HTMlreportImg2.src = "http://localhost:3000/" + images[1];
     }
-    HTMLreporterName.innerText = reportData.name;
-    HTMLreporterEmail.innerText = reportData.email;
+    HTMLreporterName.innerHTML = reportData.name;
+    HTMLreporterEmail.innerHTML = reportData.email;
   }
 };
 const reportLocationButton = document.querySelector("#location-report");
@@ -1344,10 +1345,9 @@ reportLocationButton.addEventListener("click", async (e) => {
         item.status,
         '<a href="#" class="view-detail" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
       ];
-      // rowDataArr.push(JSON.stringify(item))
-      const newRow = $('<tr>').attr('data-report', JSON.stringify(item));
+      const newRow = $("<tr>").attr("data-report", JSON.stringify(item));
       rowDataArr.forEach(function (data) {
-        newRow.append('<td>' + data + '</td>');
+        newRow.append("<td>" + data + "</td>");
       });
       dataTable.row.add(newRow);
     });
@@ -1372,7 +1372,7 @@ reportBoardButton.addEventListener("click", async (e) => {
     document.querySelector(".page-item.active") != null
       ? document.querySelector(".page-item.active").innerText
       : undefined;
-  console.log(page);
+
   if (page == undefined) {
     return;
   }
@@ -1412,9 +1412,13 @@ reportBoardButton.addEventListener("click", async (e) => {
         item.ReportType.type,
         item.createdAt.split("T")[0],
         item.status,
-        '<a href="#"  rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
+        '<a href="#" class="view-detail" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
       ];
-      dataTable.row.add(rowDataArr);
+      const newRow = $("<tr>").attr("data-report", JSON.stringify(item));
+      rowDataArr.forEach(function (data) {
+        newRow.append("<td>" + data + "</td>");
+      });
+      dataTable.row.add(newRow);
     });
 
     dataTable.draw();
