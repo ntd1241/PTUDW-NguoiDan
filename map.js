@@ -118,24 +118,24 @@ map.on("load", async () => {
     },
   });
   //Inspect a cluster on click
-  map.on("click", "sipulated-cluster", inspectCluster(e, "sipulated"));
+  map.on("click", "sipulated-cluster", (e) => {
+    inspectCluster(e, "sipulated");
+  });
   //Get info when user moves their mouse over the unclustered layer
   const sipulatedPopup = new mapboxgl.Popup({
     closeButton: false,
     closeOnClick: false,
   });
-  map.on(
-    "mouseenter",
-    "sipulated-unclustered",
-    mouseEnterEvent(e, "sipulated")
-  );
-  map.on(
-    "mouseleave",
-    "sipulated-unclustered",
-    mouseLeaveEvent(e, "sipulated")
-  );
+  map.on("mouseenter", "sipulated-unclustered", (e) => {
+    mouseEnterEventUnclustered(e, "sipulated");
+  });
+  map.on("mouseleave", "sipulated-unclustered", (e) => {
+    mouseLeaveEventUnclustered();
+  });
   //Get unclustered info on click
-  map.on("click", "sipulated-unclustered", getInfoOnclick(e));
+  map.on("click", "sipulated-unclustered", async (e) => {
+    await getInfoOnclickUnclustered(e);
+  });
   map.on("mouseenter", "sipulated-cluster", () => {
     map.getCanvas().style.cursor = "pointer";
   });
@@ -144,7 +144,7 @@ map.on("load", async () => {
   });
 
   //Non sipulated section
-  map.addSource("non-sipulated", {
+  map.addSource("nonSipulated", {
     type: "geojson",
     data: JSON.parse(nonSipulated),
     cluster: true,
@@ -155,7 +155,7 @@ map.on("load", async () => {
   map.addLayer({
     id: "nonSipulated-cluster",
     type: "circle",
-    source: "non-sipulated",
+    source: "nonSipulated",
     filter: ["has", "point_count"],
     paint: {
       "circle-color": nonSipulatedColor,
@@ -167,7 +167,7 @@ map.on("load", async () => {
   map.addLayer({
     id: "nonSipulated-count",
     type: "symbol",
-    source: "non-sipulated",
+    source: "nonSipulated",
     filter: ["has", "point_count"],
     layout: {
       "text-field": "{point_count_abbreviated}",
@@ -181,7 +181,7 @@ map.on("load", async () => {
   map.addLayer({
     id: "nonSipulated-unclustered",
     type: "circle",
-    source: "non-sipulated",
+    source: "nonSipulated",
     filter: ["!", ["has", "point_count"]],
     layout: { visibility: "visible" },
     paint: {
@@ -195,7 +195,7 @@ map.on("load", async () => {
   map.addLayer({
     id: "nonSipulated-label",
     type: "symbol",
-    source: "non-sipulated",
+    source: "nonSipulated",
     filter: ["!", ["has", "point_count"]],
     layout: {
       "text-field": "QC",
@@ -210,20 +210,7 @@ map.on("load", async () => {
   });
   //Inspect a cluster on click
   map.on("click", "nonSipulated-cluster", (e) => {
-    const features = map.queryRenderedFeatures(e.point, {
-      layers: ["nonSipulated-cluster"],
-    });
-    const clusterId = features[0].properties.cluster_id;
-    map
-      .getSource("non-sipulated")
-      .getClusterExpansionZoom(clusterId, (err, zoom) => {
-        if (err) return;
-
-        map.easeTo({
-          center: features[0].geometry.coordinates,
-          zoom: zoom,
-        });
-      });
+    inspectCluster(e, "nonSipulated");
   });
   //Get info when user moves their mouse over the unclustered layer
   const nonSipulatedPopup = new mapboxgl.Popup({
@@ -231,149 +218,14 @@ map.on("load", async () => {
     closeOnClick: false,
   });
   map.on("mouseenter", "nonSipulated-unclustered", (e) => {
-    map.getCanvas().style.cursor = "pointer";
-
-    const coordinates = e.features[0].geometry.coordinates.slice();
-    const { id, address, adsType, area, locationType, status } =
-      e.features[0].properties;
-
-    while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-      coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-    }
-
-    const popupDesc = `<b>${adsType}</b><p>${locationType}</p><p>${address}</p><h5>${status}</h5>`;
-    nonSipulatedPopup.setLngLat(coordinates).setHTML(popupDesc).addTo(map);
+    mouseEnterEventUnclustered(e, "nonSipulated");
   });
   map.on("mouseleave", "nonSipulated-unclustered", () => {
-    map.getCanvas().style.cursor = "";
-    nonSipulatedPopup.remove();
+    mouseLeaveEventUnclustered();
   });
   //Get infor onclick
   map.on("click", "nonSipulated-unclustered", async (e) => {
-    const target = e.features[0];
-    selectedLocation = { ...e.features[0], lngLat: e.lngLat };
-    const fetchedData = await fetch(
-      `http://localhost:3000/citizen/get-ads/${e.features[0].properties.id}`
-    );
-    const data = await fetchedData.json();
-    adsData = JSON.parse(data);
-
-    const HTMLid = document.querySelector("#board-id");
-    const HTMLnumber = document.querySelector("#num-ads");
-    const HTMLtitle = document.querySelector("#board-title");
-    const HTMLaddr = document.querySelector("#board-address");
-    const HTMLsize = document.querySelector("#board-size");
-    const HTMLqty = document.querySelector("#board-quantity");
-    const HTMLform = document.querySelector("#board-form");
-    const HTMLclassification = document.querySelector("#board-classification");
-    const HTMLthumbnail = document.querySelector("#board-thumbnail");
-    const HTMLpagination = document.querySelector("#board-pagination");
-    const HTMLboardContract = document.querySelector("#board-contract");
-
-    if (adsData.length == 0) {
-      HTMLid.innerHTML = "Chưa có thông tin";
-      HTMLnumber.innerHTML = `<p>Địa điểm này có 0 quảng cáo</p>`;
-      HTMLtitle.innerHTML = `Chưa có thông tin <span class="ms-2 badge bg-secondary" id="board-status">Chưa có thông tin</span></a>`;
-      HTMLaddr.innerHTML = target.properties.address;
-      HTMLsize.innerHTML = "Chưa có thông tin";
-      HTMLqty.innerHTML = "Chưa có thông tin";
-      HTMLform.innerHTML = target.properties.adsType;
-      HTMLclassification.innerHTML = target.properties.locationType;
-      HTMLthumbnail.src = "";
-      HTMLboardContract.setAttribute("data-bs-content", ``);
-      const popover = new bootstrap.Popover(HTMLboardContract);
-      popover.update();
-    } else {
-      HTMLid.innerHTML = adsData[0].id;
-      HTMLnumber.innerHTML = `<p>Địa điểm này có ${adsData.length} quảng cáo`;
-      HTMLtitle.innerHTML = `${
-        adsData[0].BoardType.type
-      }<span class="ms-2 badge ${
-        adsData[0].status == "Đã cấp phép"
-          ? "bg-success"
-          : adsData[0].status == "Chưa cấp phép"
-          ? "bg-warning"
-          : "bg-danger"
-      }" id="board-status">${adsData[0].status}</span></a>`;
-      HTMLaddr.innerHTML = adsData[0].AdsPlacement.address;
-      HTMLsize.innerHTML = adsData[0].size;
-      HTMLqty.innerHTML = adsData[0].quantity;
-      HTMLform.innerHTML = adsData[0].AdsPlacement.AdsType.type;
-      HTMLclassification.innerHTML =
-        adsData[0].AdsPlacement.LocationType.locationType;
-      HTMLthumbnail.src = adsData[0].image;
-      HTMLboardContract.setAttribute(
-        "data-bs-content",
-        `Ngày hết hạn: ${adsData[0].end.split("T")[0]}`
-      );
-      const popover = new bootstrap.Popover(HTMLboardContract);
-      popover.update();
-    }
-
-    //Default 1st ads
-
-    //Update pagination
-    let paginationData = "";
-    paginationData += `<li class="page-item disabled">
-    <a class="page-link" href="#" aria-label="Previous">
-      <span aria-hidden="true">&laquo;</span></a></li>`;
-    for (let i = 0; i < adsData.length; i++) {
-      if (i == 3) {
-        break;
-      }
-      if (i == 0) {
-        paginationData += `<li class="page-item active" aria-current="page"><a class="page-link" href="#">${
-          i + 1
-        }</a></li>`;
-      } else {
-        paginationData += `<li class="page-item" aria-current="page"><a class="page-link" href="#">${
-          i + 1
-        }</a></li>`;
-      }
-    }
-    if (adsData.length == 1) {
-      paginationData += `<li class="page-item disabled">
-      <a class="page-link" href="#" aria-label="Next">
-        <span aria-hidden="true">&laquo;</span></a></li>`;
-    } else {
-      paginationData += `<a class="page-link" href="#" aria-label="Next">
-      <span aria-hidden="true">&raquo;</span></a>`;
-    }
-    HTMLpagination.innerHTML = paginationData;
-
-    //Pagination feature
-    const pageItems = document.querySelectorAll(".page-item");
-    pageItems.forEach((item) => {
-      item.addEventListener("click", (e) => {
-        e.preventDefault();
-        //Deactive previous
-        const activeItem = document.querySelector(".page-item.active");
-        activeItem.classList.remove("active");
-
-        const page = e.target.innerText;
-        HTMLid.innerHTML = adsData[page - 1].id;
-
-        HTMLtitle.innerHTML = `${
-          adsData[page - 1].BoardType.type
-        }<span class="ms-2 badge ${
-          adsData[page - 1].status == "Đã cấp phép"
-            ? "bg-success"
-            : adsData[page - 1].status == "Chưa cấp phép"
-            ? "bg-warning"
-            : "bg-danger"
-        }" id="board-status">${adsData[page - 1].status}</span></a>`;
-        HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
-        HTMLsize.innerHTML = adsData[page - 1].size;
-        HTMLqty.innerHTML = adsData[page - 1].quantity;
-        HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
-        HTMLclassification.innerHTML =
-          adsData[page - 1].AdsPlacement.LocationType.locationType;
-        HTMLthumbnail.src = adsData[page - 1].image;
-        //Set active
-        e.target.parentNode.classList.add("active");
-        //Recreate pagination
-      });
-    });
+    await getInfoOnclickUnclustered(e);
   });
   map.on("mouseenter", "nonSipulated-cluster", () => {
     map.getCanvas().style.cursor = "pointer";
@@ -448,166 +300,21 @@ map.on("load", async () => {
   });
   //Inspect a cluster on click
   map.on("click", "reported-cluster", (e) => {
-    const features = map.queryRenderedFeatures(e.point, {
-      layers: ["reported-cluster"],
-    });
-    const clusterId = features[0].properties.cluster_id;
-    map
-      .getSource("reported")
-      .getClusterExpansionZoom(clusterId, (err, zoom) => {
-        if (err) return;
-
-        map.easeTo({
-          center: features[0].geometry.coordinates,
-          zoom: zoom,
-        });
-      });
+    inspectCluster(e, "reported");
   });
   const reportedPopup = new mapboxgl.Popup({
     closeButton: false,
     closeOnClick: false,
   });
   map.on("mouseenter", "reported-unclustered", (e) => {
-    map.getCanvas().style.cursor = "pointer";
-
-    const coordinates = e.features[0].geometry.coordinates.slice();
-    const { id, address, adsType, area, locationType, status } =
-      e.features[0].properties;
-
-    while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-      coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-    }
-
-    const popupDesc = `<b>${adsType}</b><p>${locationType}</p><p>${address}</p><h5>${status}</h5>`;
-    reportedPopup.setLngLat(coordinates).setHTML(popupDesc).addTo(map);
+    mouseEnterEventUnclustered(e, "reported");
   });
   map.on("mouseleave", "reported-unclustered", () => {
-    map.getCanvas().style.cursor = "";
-    reportedPopup.remove();
+    mouseLeaveEventUnclustered();
   });
   // Get info on click
   map.on("click", "reported-unclustered", async (e) => {
-    selectedLocation = { ...e.features[0], lngLat: e.lngLat };
-    const target = e.features[0];
-    const fetchedData = await fetch(
-      `http://localhost:3000/citizen/get-ads/${e.features[0].properties.id}`
-    );
-    const data = await fetchedData.json();
-    adsData = JSON.parse(data);
-
-    const HTMLid = document.querySelector("#board-id");
-    const HTMLnumber = document.querySelector("#num-ads");
-    const HTMLtitle = document.querySelector("#board-title");
-    const HTMLaddr = document.querySelector("#board-address");
-    const HTMLsize = document.querySelector("#board-size");
-    const HTMLqty = document.querySelector("#board-quantity");
-    const HTMLform = document.querySelector("#board-form");
-    const HTMLclassification = document.querySelector("#board-classification");
-    const HTMLthumbnail = document.querySelector("#board-thumbnail");
-    const HTMLpagination = document.querySelector("#board-pagination");
-    const HTMLboardContract = document.querySelector("#board-contract");
-    if (adsData.length == 0) {
-      HTMLid.innerHTML = "Chưa có thông tin";
-      HTMLnumber.innerHTML = `<p>Địa điểm này có 0 quảng cáo</p>`;
-      HTMLtitle.innerHTML = `Chưa có thông tin <span class="ms-2 badge bg-secondary" id="board-status">Chưa có thông tin</span></a>`;
-      HTMLaddr.innerHTML = target.properties.address;
-      HTMLsize.innerHTML = "Chưa có thông tin";
-      HTMLqty.innerHTML = "Chưa có thông tin";
-      HTMLform.innerHTML = target.properties.adsType;
-      HTMLclassification.innerHTML = target.properties.locationType;
-      HTMLthumbnail.src = "";
-      HTMLboardContract.setAttribute("data-bs-content", ``);
-      const popover = new bootstrap.Popover(HTMLboardContract);
-      popover.update();
-    } else {
-      HTMLid.innerHTML = adsData[0].id;
-      HTMLnumber.innerHTML = `<p>Địa điểm này có ${adsData.length} quảng cáo`;
-      HTMLtitle.innerHTML = `${
-        adsData[0].BoardType.type
-      }<span class="ms-2 badge ${
-        adsData[0].status == "Đã cấp phép"
-          ? "bg-success"
-          : adsData[0].status == "Chưa cấp phép"
-          ? "bg-warning"
-          : "bg-danger"
-      }" id="board-status">${adsData[0].status}</span></a>`;
-      HTMLaddr.innerHTML = adsData[0].AdsPlacement.address;
-      HTMLsize.innerHTML = adsData[0].size;
-      HTMLqty.innerHTML = adsData[0].quantity;
-      HTMLform.innerHTML = adsData[0].AdsPlacement.AdsType.type;
-      HTMLclassification.innerHTML =
-        adsData[0].AdsPlacement.LocationType.locationType;
-      HTMLthumbnail.src = adsData[0].image;
-      HTMLboardContract.setAttribute(
-        "data-bs-content",
-        `Ngày hết hạn: ${adsData[0].end.split("T")[0]}`
-      );
-      const popover = new bootstrap.Popover(HTMLboardContract);
-      popover.update();
-    }
-
-    //Default 1st ads
-
-    //Update pagination
-    let paginationData = "";
-    paginationData += `<li class="page-item disabled">
-    <a class="page-link" href="#" aria-label="Previous">
-      <span aria-hidden="true">&laquo;</span></a></li>`;
-    for (let i = 0; i < adsData.length; i++) {
-      if (i == 3) {
-        break;
-      }
-      if (i == 0) {
-        paginationData += `<li class="page-item active" aria-current="page"><a class="page-link" href="#">${
-          i + 1
-        }</a></li>`;
-      } else {
-        paginationData += `<li class="page-item" aria-current="page"><a class="page-link" href="#">${
-          i + 1
-        }</a></li>`;
-      }
-    }
-    if (adsData.length == 1) {
-      paginationData += `<li class="page-item disabled">
-      <a class="page-link" href="#" aria-label="Next">
-        <span aria-hidden="true">&laquo;</span></a></li>`;
-    } else {
-      paginationData += `<a class="page-link" href="#" aria-label="Next">
-      <span aria-hidden="true">&raquo;</span></a>`;
-    }
-    HTMLpagination.innerHTML = paginationData;
-
-    const pageItems = document.querySelectorAll(".page-item");
-    pageItems.forEach((item) => {
-      item.addEventListener("click", (e) => {
-        e.preventDefault();
-        //Deactive previous
-        const activeItem = document.querySelector(".page-item.active");
-        activeItem.classList.remove("active");
-
-        const page = e.target.innerText;
-        HTMLid.innerHTML = adsData[page - 1].id;
-
-        HTMLtitle.innerHTML = `${
-          adsData[page - 1].BoardType.type
-        }<span class="ms-2 badge ${
-          adsData[page - 1].status == "Đã cấp phép"
-            ? "bg-success"
-            : adsData[page - 1].status == "Chưa cấp phép"
-            ? "bg-warning"
-            : "bg-danger"
-        }" id="board-status">${adsData[page - 1].status}</span></a>`;
-        HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
-        HTMLsize.innerHTML = adsData[page - 1].size;
-        HTMLqty.innerHTML = adsData[page - 1].quantity;
-        HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
-        HTMLclassification.innerHTML =
-          adsData[page - 1].AdsPlacement.LocationType.locationType;
-        HTMLthumbnail.src = adsData[page - 1].image;
-        //Set active
-        e.target.parentNode.classList.add("active");
-      });
-    });
+    await getInfoOnclickUnclustered();
   });
   map.on("mouseenter", "reported-cluster", () => {
     map.getCanvas().style.cursor = "pointer";
@@ -681,153 +388,21 @@ map.on("load", async () => {
   });
   //Inspect a cluster on click
   map.on("click", "selfReported-cluster", (e) => {
-    const features = map.queryRenderedFeatures(e.point, {
-      layers: ["selfReported-cluster"],
-    });
-    const clusterId = features[0].properties.cluster_id;
-    map
-      .getSource("selfReported")
-      .getClusterExpansionZoom(clusterId, (err, zoom) => {
-        if (err) return;
-
-        map.easeTo({
-          center: features[0].geometry.coordinates,
-          zoom: zoom,
-        });
-      });
+    inspectCluster(e, "selfReported");
   });
   const selfReportedPopup = new mapboxgl.Popup({
     closeButton: false,
     closeOnClick: false,
   });
   map.on("mouseenter", "selfReported-unclustered", (e) => {
-    map.getCanvas().style.cursor = "pointer";
-
-    const coordinates = e.features[0].geometry.coordinates.slice();
-    const { id, address, adsType, area, locationType, status } =
-      e.features[0].properties;
-
-    while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-      coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-    }
-
-    const popupDesc = `<b>${adsType}</b><p>${locationType}</p><p>${address}</p><h5>${status}</h5>`;
-    selfReportedPopup.setLngLat(coordinates).setHTML(popupDesc).addTo(map);
+    mouseEnterEventUnclustered(e, "selfReported");
   });
   map.on("mouseleave", "selfReported-unclustered", () => {
-    map.getCanvas().style.cursor = "";
-    selfReportedPopup.remove();
+    mouseLeaveEventUnclustered();
   });
   // Get info on click
   map.on("click", "selfReported-unclustered", async (e) => {
-    selectedLocation = { ...e.features[0], lngLat: e.lngLat };
-    const target = e.features[0];
-    const fetchedData = await fetch(
-      `http://localhost:3000/citizen/get-ads/${e.features[0].properties.id}`
-    );
-    const data = await fetchedData.json();
-    adsData = JSON.parse(data);
-
-    const HTMLid = document.querySelector("#board-id");
-    const HTMLnumber = document.querySelector("#num-ads");
-    const HTMLtitle = document.querySelector("#board-title");
-    const HTMLaddr = document.querySelector("#board-address");
-    const HTMLsize = document.querySelector("#board-size");
-    const HTMLqty = document.querySelector("#board-quantity");
-    const HTMLform = document.querySelector("#board-form");
-    const HTMLclassification = document.querySelector("#board-classification");
-    const HTMLthumbnail = document.querySelector("#board-thumbnail");
-    const HTMLpagination = document.querySelector("#board-pagination");
-    const HTMLboardContract = document.querySelector("#board-contract");
-
-    if (adsData.length == 0) {
-      HTMLid.innerHTML = "Chưa có thông tin";
-      HTMLnumber.innerHTML = `<p>Địa điểm này có 0 quảng cáo</p>`;
-      HTMLtitle.innerHTML = `Chưa có thông tin <span class="ms-2 badge bg-secondary" id="board-status">Chưa có thông tin</span></a>`;
-      HTMLaddr.innerHTML = target.properties.address;
-      HTMLsize.innerHTML = "Chưa có thông tin";
-      HTMLqty.innerHTML = "Chưa có thông tin";
-      HTMLform.innerHTML = target.properties.adsType;
-      HTMLclassification.innerHTML = target.properties.locationType;
-      HTMLthumbnail.src = "";
-      HTMLboardContract.setAttribute("data-bs-content", ``);
-      const popover = new bootstrap.Popover(HTMLboardContract);
-      popover.update();
-    } else {
-      HTMLid.innerHTML = adsData[0].id;
-      HTMLnumber.innerHTML = `<p>Địa điểm này có ${adsData.length} quảng cáo`;
-      HTMLtitle.innerHTML = `${adsData[0].BoardType.type}<span class="ms-2 badge bg-danger" id="board-status">Bị báo cáo vi phạm</span></a>`;
-      HTMLaddr.innerHTML = adsData[0].AdsPlacement.address;
-      HTMLsize.innerHTML = adsData[0].size;
-      HTMLqty.innerHTML = adsData[0].quantity;
-      HTMLform.innerHTML = adsData[0].AdsPlacement.AdsType.type;
-      HTMLclassification.innerHTML =
-        adsData[0].AdsPlacement.LocationType.locationType;
-      HTMLthumbnail.src = adsData[0].image;
-      HTMLboardContract.setAttribute(
-        "data-bs-content",
-        `Ngày hết hạn: ${adsData[0].end.split("T")[0]}`
-      );
-      const popover = new bootstrap.Popover(HTMLboardContract);
-      popover.update();
-    }
-
-    //Default 1st ads
-
-    //Update pagination
-    let paginationData = "";
-    paginationData += `<li class="page-item disabled">
-    <a class="page-link" href="#" aria-label="Previous">
-      <span aria-hidden="true">&laquo;</span></a></li>`;
-    for (let i = 0; i < adsData.length; i++) {
-      if (i == 3) {
-        break;
-      }
-      if (i == 0) {
-        paginationData += `<li class="page-item active" aria-current="page"><a class="page-link" href="#">${
-          i + 1
-        }</a></li>`;
-      } else {
-        paginationData += `<li class="page-item" aria-current="page"><a class="page-link" href="#">${
-          i + 1
-        }</a></li>`;
-      }
-    }
-    if (adsData.length == 1) {
-      paginationData += `<li class="page-item disabled">
-      <a class="page-link" href="#" aria-label="Next">
-        <span aria-hidden="true">&laquo;</span></a></li>`;
-    } else {
-      paginationData += `<a class="page-link" href="#" aria-label="Next">
-      <span aria-hidden="true">&raquo;</span></a>`;
-    }
-    HTMLpagination.innerHTML = paginationData;
-
-    const pageItems = document.querySelectorAll(".page-item");
-    pageItems.forEach((item) => {
-      item.addEventListener("click", (e) => {
-        e.preventDefault();
-        //Deactive previous
-        const activeItem = document.querySelector(".page-item.active");
-        activeItem.classList.remove("active");
-
-        const page = e.target.innerText;
-        HTMLid.innerHTML = adsData[page - 1].id;
-
-        HTMLtitle.innerHTML = `${
-          adsData[page - 1].BoardType.type
-        }<span class="ms-2 badge bg-danger" id="board-status">Bị báo cáo vi phạm</span></a>`;
-        HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
-        HTMLsize.innerHTML = adsData[page - 1].size;
-        HTMLqty.innerHTML = adsData[page - 1].quantity;
-        HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
-        HTMLclassification.innerHTML =
-          adsData[page - 1].AdsPlacement.LocationType.locationType;
-        HTMLthumbnail.src = adsData[page - 1].image;
-        //Set active
-        e.target.parentNode.classList.add("active");
-      });
-    });
+    await getInfoOnclickUnclustered();
   });
   map.on("mouseenter", "selfReported-cluster", () => {
     map.getCanvas().style.cursor = "pointer";
