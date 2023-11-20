@@ -13,13 +13,18 @@ const inspectCluster = (e, layer) => {
   });
 };
 
-const mouseEnterEventUncluster = (e, layer) => {
+const mouseEnterEventUnclustered = (e, layer) => {
   let popup;
   if (layer == "sipulated") {
     popup = sipulatedPopup;
-  } else if (layer == "non-sipulated") {
+  } else if (layer == "nonSipulated") {
     popup = nonSipulatedPopup;
+  } else if (layer == "reported") {
+    popup = reportedPopup;
+  } else if (layer == "selfReported") {
+    popup = selfReportedPopup;
   }
+
   map.getCanvas().style.cursor = "pointer";
   const coordinates = e.features[0].geometry.coordinates.slice();
   const { id, address, adsType, area, locationType, status } =
@@ -33,12 +38,19 @@ const mouseEnterEventUncluster = (e, layer) => {
   popup.setLngLat(coordinates).setHTML(popupDesc).addTo(map);
 };
 
-const mouseLeaveEvent = () => {
+const mouseLeaveEventUnclustered = () => {
+  let popup;
+  if (layer == "sipulated") {
+    popup = sipulatedPopup;
+  } else if (layer == "non-sipulated") {
+    popup = nonSipulatedPopup;
+  }
+
   map.getCanvas().style.cursor = "";
-  sipulatedPopup.remove();
+  popup.remove();
 };
 
-const getInfoOnclick = async (e) => {
+const getInfoOnclickUnclustered = async (e) => {
   selectedLocation = { ...e.features[0], lngLat: e.lngLat };
   const target = e.features[0];
   const fetchedData = await fetch(
@@ -160,4 +172,23 @@ const getInfoOnclick = async (e) => {
       e.target.parentNode.classList.add("active");
     });
   });
+};
+
+const toggleEvent = (e, targetLayer) => {
+  const layers = [
+    `${targetLayer}-cluster`,
+    `${targetLayer}-count`,
+    `${targetLayer}-unclustered`,
+    `${targetLayer}-label`,
+  ];
+
+  if (e.target.checked) {
+    layers.forEach((layer) => {
+      map.setLayoutProperty(layer, "visibility", "visible");
+    });
+  } else {
+    layers.forEach((layer) => {
+      map.setLayoutProperty(layer, "visibility", "none");
+    });
+  }
 };
