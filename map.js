@@ -23,6 +23,7 @@ const selfReportedPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
 });
+const serverPath = "http://localhost:5000";
 
 // Mapbox generation
 mapboxgl.accessToken =
@@ -111,7 +112,7 @@ const getInfoOnclickUnclustered = async (e) => {
   selectedLocation = { ...e.features[0], lngLat: e.lngLat };
   const target = e.features[0];
   const fetchedData = await fetch(
-    `http://localhost:3000/citizen/get-ads/${e.features[0].properties.id}`
+    `${serverPath}/citizen/get-ads/${e.features[0].properties.id}`
   );
   const data = await fetchedData.json();
   adsData = JSON.parse(data);
@@ -285,7 +286,7 @@ const getReportTable = async (e, flag) => {
     }
     selectedBoard = undefined;
     respond = await fetch(
-      `http://localhost:3000/citizen/get-report-data?placement=${locationId}&board=undefined`
+      `${serverPath}/citizen/get-report-data?placement=${locationId}&board=undefined`
     );
   } else if (flag == 1) {
     let page =
@@ -299,21 +300,26 @@ const getReportTable = async (e, flag) => {
     selectedBoard = adsData[page - 1];
     const board = adsData[page - 1];
     respond = await fetch(
-      `http://localhost:3000/citizen/get-report-data?board=${board.id}&placement=undefined`
+      `${serverPath}/citizen/get-report-data?board=${board.id}&placement=undefined`
     );
   } else if (flag == 2) {
-    const selfReportedData = JSON.parse(localStorage.getItem("reportedData"));
-    console.log(JSON.stringify(selfReportedData));
-    respond = await fetch("http://localhost:3000/citizen/post-self-report", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ reportIds: selfReportedData }),
-    });
+    let selfReportedData = localStorage.getItem("reportedData");
+    if (selfReportedData != null) {
+      selfReportedData = JSON.parse(selfReportedData);
+      respond = await fetch(`${serverPath}/citizen/post-self-report`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reportIds: selfReportedData }),
+      });
+    } else {
+      alert("No reports to be reported");
+    }
   }
 
   const data = await respond.json();
+  console.log(data);
   const reportData = JSON.parse(data);
 
   const handled = reportData.filter((item) => {
@@ -328,7 +334,7 @@ const getReportTable = async (e, flag) => {
 
   if (flag == 0 || flag == 1) {
     HTMLlocationId.innerText = selectedLocation.properties.id;
-    HTMLlocationType.innerText =flag==0? "Địa điểm":"Bảng quảng cáo ";
+    HTMLlocationType.innerText = flag == 0 ? "Địa điểm" : "Bảng quảng cáo ";
     HTMLlocationNoReports.innerText = `${handled.length}/${reportData.length}`;
     HTMLlocationAddress.innerText = selectedLocation.properties.address;
   } else if (flag == 2) {
@@ -374,14 +380,12 @@ const getReportTable = async (e, flag) => {
 map.on("load", async () => {
   //Fetched section
   const fetchedsipulatedData = await fetch(
-    "http://localhost:3000/citizen/get-sipulated"
+    `${serverPath}/citizen/get-sipulated`
   );
   const fetchedNonSipulatedData = await fetch(
-    "http://localhost:3000/citizen/get-nonsipulated"
+    `${serverPath}/citizen/get-nonsipulated`
   );
-  const fetchedReportData = await fetch(
-    "http://localhost:3000/citizen/get-report"
-  );
+  const fetchedReportData = await fetch(`${serverPath}/citizen/get-report`);
   const sipulated = await fetchedsipulatedData.json();
   const nonSipulated = await fetchedNonSipulatedData.json();
   const reported = await fetchedReportData.json();
@@ -855,11 +859,9 @@ formSubmit.addEventListener("click", async (e) => {
 
   const type = document.querySelector("#form-report-type").value;
   const content = editor.getData();
-  console.log(content);
 
   //Validate
   if (!formValidation({ name, email, phone, type, content })) {
-    console.log("HEHS");
     formSubmitResult.innerHTML = `<h6 class="mb-3 text-danger"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn chưa được gửi, vui lòng thực hiện lại</h6>`;
     return;
   }
@@ -924,16 +926,47 @@ formSubmit.addEventListener("click", async (e) => {
   formData.append("board", board);
   formData.append("location", location);
 
-  const respond = await fetch("http://127.0.0.1:3000/citizen/post-report", {
+  const respond = await fetch(`${serverPath}/citizen/post-report`, {
     method: "POST",
     body: formData,
   });
   const respondJSON = await respond.json();
   const id = respondJSON.id;
-  console.log(id);
+
   // Save to local storage
   selfReportedData.push(id);
   localStorage.setItem("reportedData", JSON.stringify(selfReportedData));
+  //Add new report to table
+  $(document).ready(function () {
+    let dataTable = $("#myTable").DataTable();
+    const item = {
+      id: id,
+      name: name,
+      ReportType: { type: type },
+      createdAt: new Date().toLocaleDateString(),
+      status: "Chưa xử lý",
+    };
+
+    const rowDataArr = [
+      item.id,
+      item.name,
+      item.ReportType.type,
+      item.createdAt,
+      item.status,
+      '<a href="#" class="view-detail" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
+    ];
+    const newRow = $("<tr>").attr("data-report", JSON.stringify(item));
+    rowDataArr.forEach((data) => {
+      newRow.append("<td>" + data + "</td>");
+    });
+    dataTable.row.add(newRow);
+    dataTable.draw();
+  });
+  const viewButtons = document.querySelectorAll("td a");
+  console.log("HEHE")
+  viewButtons.forEach((item) => {
+    item.addEventListener("click", viewDetailButtonEvent);
+  });
 });
 
 //Get table when click placement report
@@ -965,11 +998,11 @@ const viewDetailButtonEvent = (e) => {
       HTMLreportImg1.src = "";
       HTMlreportImg2.src = "";
     } else if (images.length == 1) {
-      HTMLreportImg1.src = "http://localhost:3000/" + images[0];
+      HTMLreportImg1.src = `${serverPath}/` + images[0];
       HTMlreportImg2.src = "";
     } else {
-      HTMLreportImg1.src = "http://localhost:3000/" + images[0];
-      HTMlreportImg2.src = "http://localhost:3000/" + images[1];
+      HTMLreportImg1.src = `${serverPath}/` + images[0];
+      HTMlreportImg2.src = `${serverPath}/` + images[1];
     }
     HTMLreporterName.innerHTML = reportData.name;
     HTMLreporterEmail.innerHTML = reportData.email;
@@ -989,4 +1022,17 @@ reportBoardButton.addEventListener("click", async (e) => {
 const viewSelfReportButton = document.querySelector("#view-self-report");
 viewSelfReportButton.addEventListener("click", async (e) => {
   getReportTable(e, 2);
+});
+
+const mapTab = document.querySelector("#map-tab");
+mapTab.addEventListener("click", (e) => {
+  e.preventDefault();
+  map.resize();
+});
+
+const reportTab = document.querySelector("#report-tab");
+reportTab.addEventListener("click", (e) => {
+  e.preventDefault();
+  const createReport = document.querySelector("#create-report");
+  createReport.style.display = "none";
 });
