@@ -319,7 +319,6 @@ const getReportTable = async (e, flag) => {
   }
 
   const data = await respond.json();
-  console.log(data);
   const reportData = JSON.parse(data);
 
   const handled = reportData.filter((item) => {
@@ -837,6 +836,45 @@ const formValidation = (data) => {
   return true;
 };
 
+const viewDetailButtonEvent = (e) => {
+  e.preventDefault();
+
+  const clickedRow = e.target.closest("tr");
+
+  if (clickedRow) {
+    const reportData = JSON.parse(clickedRow.dataset.report);
+    const images =
+      reportData.image != null ? reportData.image.split(",") : undefined;
+    // console.log(reportData);
+
+    const HTMLreportId = document.querySelector("#report-id");
+    const HTMLreportStatus = document.querySelector("#report-status");
+    const HTMLreportDatetime = document.querySelector("#report-datetime");
+    const HTMLreportContent = document.querySelector("#report-content");
+    const HTMLreportImg1 = document.querySelector("#report-img-1");
+    const HTMlreportImg2 = document.querySelector("#report-img-2");
+    const HTMLreporterName = document.querySelector("#reporter-name");
+    const HTMLreporterEmail = document.querySelector("#reporter-email");
+
+    HTMLreportId.innerHTML = reportData.id;
+    HTMLreportStatus.innerHTML = reportData.status;
+    HTMLreportDatetime.innerHTML = reportData.createdAt.split("T")[0];
+    HTMLreportContent.innerHTML = reportData.reportContent;
+    if (images == undefined) {
+      HTMLreportImg1.src = "";
+      HTMlreportImg2.src = "";
+    } else if (images.length == 1) {
+      HTMLreportImg1.src = `${serverPath}/` + images[0];
+      HTMlreportImg2.src = "";
+    } else {
+      HTMLreportImg1.src = `${serverPath}/` + images[0];
+      HTMlreportImg2.src = `${serverPath}/` + images[1];
+    }
+    HTMLreporterName.innerHTML = reportData.name;
+    HTMLreporterEmail.innerHTML = reportData.email;
+  }
+};
+
 const formSubmit = document.querySelector("#report-submit");
 formSubmit.addEventListener("click", async (e) => {
   e.preventDefault();
@@ -937,13 +975,23 @@ formSubmit.addEventListener("click", async (e) => {
   selfReportedData.push(id);
   localStorage.setItem("reportedData", JSON.stringify(selfReportedData));
   //Add new report to table
+  let formattedType = "";
+  if (type == "TGSP") {
+    formattedType = "Tố giác sai phạm";
+  } else if (type == "DKND") {
+    formattedType = "Đăng ký nội dung";
+  } else if (type == "DGYK") {
+    formattedType = "Đóng góp ý kiến";
+  } else if (type == "GDTM") {
+    formattedType = "Giải đáp thắc mắc";
+  }
   $(document).ready(function () {
     let dataTable = $("#myTable").DataTable();
     const item = {
       id: id,
       name: name,
-      ReportType: { type: type },
-      createdAt: new Date().toLocaleDateString(),
+      ReportType: { type: formattedType },
+      createdAt: new Date().toISOString().split("T")[0],
       status: "Chưa xử lý",
     };
 
@@ -955,59 +1003,23 @@ formSubmit.addEventListener("click", async (e) => {
       item.status,
       '<a href="#" class="view-detail" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
     ];
-    const newRow = $("<tr>").attr("data-report", JSON.stringify(item));
+    const newRow = $("<tr>").attr(
+      "data-report",
+      JSON.stringify({ ...item, reportContent: content, email: email })
+    );
     rowDataArr.forEach((data) => {
       newRow.append("<td>" + data + "</td>");
     });
     dataTable.row.add(newRow);
     dataTable.draw();
-  });
-  const viewButtons = document.querySelectorAll("td a");
-  console.log("HEHE")
-  viewButtons.forEach((item) => {
-    item.addEventListener("click", viewDetailButtonEvent);
+    const viewButtons = document.querySelectorAll("td a");
+    viewButtons.forEach((item) => {
+      item.addEventListener("click", viewDetailButtonEvent);
+    });
   });
 });
 
 //Get table when click placement report
-const viewDetailButtonEvent = (e) => {
-  e.preventDefault();
-
-  const clickedRow = e.target.closest("tr");
-
-  if (clickedRow) {
-    const reportData = JSON.parse(clickedRow.dataset.report);
-    const images =
-      reportData.image != null ? reportData.image.split(",") : undefined;
-    // console.log(reportData);
-
-    const HTMLreportId = document.querySelector("#report-id");
-    const HTMLreportStatus = document.querySelector("#report-status");
-    const HTMLreportDatetime = document.querySelector("#report-datetime");
-    const HTMLreportContent = document.querySelector("#report-content");
-    const HTMLreportImg1 = document.querySelector("#report-img-1");
-    const HTMlreportImg2 = document.querySelector("#report-img-2");
-    const HTMLreporterName = document.querySelector("#reporter-name");
-    const HTMLreporterEmail = document.querySelector("#reporter-email");
-
-    HTMLreportId.innerHTML = reportData.id;
-    HTMLreportStatus.innerHTML = reportData.status;
-    HTMLreportDatetime.innerHTML = reportData.createdAt.split("T")[0];
-    HTMLreportContent.innerHTML = reportData.reportContent;
-    if (images == undefined) {
-      HTMLreportImg1.src = "";
-      HTMlreportImg2.src = "";
-    } else if (images.length == 1) {
-      HTMLreportImg1.src = `${serverPath}/` + images[0];
-      HTMlreportImg2.src = "";
-    } else {
-      HTMLreportImg1.src = `${serverPath}/` + images[0];
-      HTMlreportImg2.src = `${serverPath}/` + images[1];
-    }
-    HTMLreporterName.innerHTML = reportData.name;
-    HTMLreporterEmail.innerHTML = reportData.email;
-  }
-};
 const reportLocationButton = document.querySelector("#location-report");
 reportLocationButton.addEventListener("click", async (e) => {
   getReportTable(e, 0);
