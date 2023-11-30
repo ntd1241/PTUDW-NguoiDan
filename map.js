@@ -343,6 +343,7 @@ const getReportTable = async (e, flag) => {
     HTMLlocationAddress.innerText = "Dang hiển thị lịch sử báo cáo";
   }
 
+  console.log(reportData[0]);
   //Change data table
   $(document).ready(function () {
     var dataTable = $("#myTable").DataTable();
@@ -936,7 +937,6 @@ formSubmit.addEventListener("click", async (e) => {
 
   //Report location handle
   const isExist = selfReportedLocation.features.find((location) => {
-    console.log(location);
     return location.properties.address == selectedLocation.properties.address;
   });
   if (!isExist) {
@@ -969,7 +969,10 @@ formSubmit.addEventListener("click", async (e) => {
     body: formData,
   });
   const respondJSON = await respond.json();
-  const id = respondJSON.id;
+  console.log(respondJSON);
+
+  const newReport = respondJSON.newReport;
+  const id = newReport.id;
 
   // Save to local storage
   selfReportedData.push(id);
@@ -987,26 +990,24 @@ formSubmit.addEventListener("click", async (e) => {
   }
   $(document).ready(function () {
     let dataTable = $("#myTable").DataTable();
-    const item = {
-      id: id,
-      name: name,
-      ReportType: { type: formattedType },
-      createdAt: new Date().toISOString().split("T")[0],
-      status: "Chưa xử lý",
-    };
+    // const item = {
+    //   id: respondJSON.id,
+    //   name: respondJSON.name,
+    //   ReportType: { type: formattedType },
+    //   createdAt: new Date().toISOString().split("T")[0],
+    //   status: respondJSON.status,
+    //   image: respondJSON.image,
+    // };
 
     const rowDataArr = [
-      item.id,
-      item.name,
-      item.ReportType.type,
-      item.createdAt,
-      item.status,
+      newReport.id,
+      newReport.name,
+      formattedType,
+      newReport.createdAt.split("T")[0],
+      newReport.status,
       '<a href="#" class="view-detail" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
     ];
-    const newRow = $("<tr>").attr(
-      "data-report",
-      JSON.stringify({ ...item, reportContent: content, email: email })
-    );
+    const newRow = $("<tr>").attr("data-report", JSON.stringify(newReport));
     rowDataArr.forEach((data) => {
       newRow.append("<td>" + data + "</td>");
     });
