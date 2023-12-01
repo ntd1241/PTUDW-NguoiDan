@@ -444,7 +444,7 @@ const getReportTable = async (e, flag) => {
     );
   } else if (flag == 2) {
     let selfReportedData = localStorage.getItem("reportedData");
-    if (selfReportedData != "") {
+    if (selfReportedData != null) {
       selfReportedData = JSON.parse(selfReportedData);
       respond = await fetch(`${serverPath}/citizen/post-self-report`, {
         method: "POST",
