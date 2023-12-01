@@ -143,6 +143,7 @@ const getInfoOnclickUnclustered = async (e) => {
     const popover = new bootstrap.Popover(HTMLboardContract);
     popover.update();
   } else {
+    console.log(adsData[0])
     HTMLid.innerHTML = adsData[0].id;
     HTMLnumber.innerHTML = `<p>Địa điểm này có ${adsData.length} quảng cáo`;
     HTMLtitle.innerHTML = `${
@@ -152,8 +153,12 @@ const getInfoOnclickUnclustered = async (e) => {
         ? "bg-success"
         : adsData[0].status == "Chưa cấp phép"
         ? "bg-warning"
-        : "bg-danger"
-    }" id="board-status">${adsData[0].status}</span></a>`;
+        : adsData[0].status == "Bị báo cáo"
+        ? "bg-danger"
+        : "bg-dark"
+    }" id="board-status">${
+      adsData[0].status != "" ? adsData[0].status : "Chưa có quảng cáo"
+    }</span></a>`;
     HTMLaddr.innerHTML = adsData[0].AdsPlacement.address;
     HTMLsize.innerHTML = adsData[0].size;
     HTMLqty.innerHTML = adsData[0].quantity;
@@ -163,7 +168,11 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLthumbnail.src = adsData[0].image;
     HTMLboardContract.setAttribute(
       "data-bs-content",
-      `Ngày hết hạn: ${adsData[0].end.split("T")[0]}`
+      `Ngày hết hạn: ${
+        adsData[0].end != ""
+          ? adsData[0].end.split("T")[0]
+          : "Chưa có thông tin"
+      }`
     );
     const popover = new bootstrap.Popover(HTMLboardContract);
     popover.update();
@@ -188,7 +197,7 @@ const getInfoOnclickUnclustered = async (e) => {
       }</a></li>`;
     }
   }
-  if (adsData.length == 1) {
+  if (adsData.length <= 1) {
     paginationData += `<li class="page-item disabled">
       <a class="page-link" href="#" aria-label="Next">
         <span aria-hidden="true">&raquo;</span></a></li>`;
@@ -197,7 +206,6 @@ const getInfoOnclickUnclustered = async (e) => {
       <span aria-hidden="true">&raquo;</span></a>`;
   }
   HTMLpagination.innerHTML = paginationData;
-
   //Pagination feature
   const pagePrev = document.querySelector('.page-link[aria-label="Previous"]');
   const pageNext = document.querySelector('.page-link[aria-label="Next"]');
@@ -221,8 +229,14 @@ const getInfoOnclickUnclustered = async (e) => {
           ? "bg-success"
           : adsData[page - 1].status == "Chưa cấp phép"
           ? "bg-warning"
-          : "bg-danger"
-      }" id="board-status">${adsData[page - 1].status}</span></a>`;
+          : adsData[page - 1].status == "Bị báo cáo"
+          ? "bg-danger"
+          : "bg-dark"
+      }" id="board-status">${
+        adsData[page - 1].status != ""
+          ? adsData[page - 1].status
+          : "Chưa có quảng cáo"
+      }</span></a>`;
       HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
       HTMLsize.innerHTML = adsData[page - 1].size;
       HTMLqty.innerHTML = adsData[page - 1].quantity;
@@ -230,6 +244,16 @@ const getInfoOnclickUnclustered = async (e) => {
       HTMLclassification.innerHTML =
         adsData[page - 1].AdsPlacement.LocationType.locationType;
       HTMLthumbnail.src = adsData[page - 1].image;
+      HTMLboardContract.setAttribute(
+        "data-bs-content",
+        `Ngày hết hạn: ${
+          adsData[page - 1].end != ""
+            ? adsData[page - 1].end.split("T")[0]
+            : "Chưa có thông tin"
+        }`
+      );
+      const popover = new bootstrap.Popover(HTMLboardContract);
+      popover.update();
       //Set active
       e.target.parentNode.classList.add("active");
       //Set enable/disable for prev/next button
@@ -242,7 +266,6 @@ const getInfoOnclickUnclustered = async (e) => {
       }
     });
   });
-
   pagePrev.addEventListener("click", (e) => {
     if (pagePrev.parentNode.classList.contains("disabled")) {
       return;
@@ -260,8 +283,14 @@ const getInfoOnclickUnclustered = async (e) => {
         ? "bg-success"
         : adsData[page - 1].status == "Chưa cấp phép"
         ? "bg-warning"
-        : "bg-danger"
-    }" id="board-status">${adsData[page - 1].status}</span></a>`;
+        : adsData[page - 1].status == "Bị báo cáo"
+        ? "bg-danger"
+        : "bg-dark"
+    }" id="board-status">${
+      adsData[page - 1].status != ""
+        ? adsData[page - 1].status
+        : "Chưa có quảng cáo"
+    }</span></a>`;
     HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
@@ -269,6 +298,16 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLclassification.innerHTML =
       adsData[page - 1].AdsPlacement.LocationType.locationType;
     HTMLthumbnail.src = adsData[page - 1].image;
+    HTMLboardContract.setAttribute(
+      "data-bs-content",
+      `Ngày hết hạn: ${
+        adsData[page - 1].end != ""
+          ? adsData[page - 1].end.split("T")[0]
+          : "Chưa có thông tin"
+      }`
+    );
+    const popover = new bootstrap.Popover(HTMLboardContract);
+    popover.update();
     //Set active
     activeItem.previousSibling.classList.add("active");
     //Deactive prev button if reach the first page
@@ -278,7 +317,6 @@ const getInfoOnclickUnclustered = async (e) => {
       pagePrev.parentNode.classList.add("disabled");
     }
   });
-
   pageNext.addEventListener("click", (e) => {
     if (pageNext.parentNode.classList.contains("disabled")) {
       return;
@@ -296,8 +334,14 @@ const getInfoOnclickUnclustered = async (e) => {
         ? "bg-success"
         : adsData[page - 1].status == "Chưa cấp phép"
         ? "bg-warning"
-        : "bg-danger"
-    }" id="board-status">${adsData[page - 1].status}</span></a>`;
+        : adsData[page - 1].status == "Bị báo cáo"
+        ? "bg-danger"
+        : "bg-dark"
+    }" id="board-status">${
+      adsData[page - 1].status != ""
+        ? adsData[page - 1].status
+        : "Chưa có quảng cáo"
+    }</span></a>`;
     HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
@@ -305,13 +349,22 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLclassification.innerHTML =
       adsData[page - 1].AdsPlacement.LocationType.locationType;
     HTMLthumbnail.src = adsData[page - 1].image;
+    HTMLboardContract.setAttribute(
+      "data-bs-content",
+      `Ngày hết hạn: ${
+        adsData[page - 1].end != ""
+          ? adsData[page - 1].end.split("T")[0]
+          : "Chưa có thông tin"
+      }`
+    );
+    const popover = new bootstrap.Popover(HTMLboardContract);
+    popover.update();
     //Set active
     activeItem.nextSibling.classList.add("active");
     //Deactive next button if reach the last page
     pageNext.parentNode.classList.remove("disabled");
 
     pagePrev.parentNode.classList.remove("disabled");
-
 
     if (page == adsData.length) {
       pageNext.parentNode.classList.add("disabled");
@@ -377,7 +430,7 @@ const getReportTable = async (e, flag) => {
     );
   } else if (flag == 1) {
     let page =
-      document.querySelector(".page-item.active") != null
+      document.querySelector(".page-item.active") != ""
         ? document.querySelector(".page-item.active").innerText
         : undefined;
 
@@ -391,7 +444,7 @@ const getReportTable = async (e, flag) => {
     );
   } else if (flag == 2) {
     let selfReportedData = localStorage.getItem("reportedData");
-    if (selfReportedData != null) {
+    if (selfReportedData != "") {
       selfReportedData = JSON.parse(selfReportedData);
       respond = await fetch(`${serverPath}/citizen/post-self-report`, {
         method: "POST",
