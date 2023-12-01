@@ -430,7 +430,7 @@ const getReportTable = async (e, flag) => {
     );
   } else if (flag == 1) {
     let page =
-      document.querySelector(".page-item.active") != ""
+      document.querySelector(".page-item.active") != null
         ? document.querySelector(".page-item.active").innerText
         : undefined;
 
