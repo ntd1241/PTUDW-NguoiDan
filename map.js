@@ -191,7 +191,7 @@ const getInfoOnclickUnclustered = async (e) => {
   if (adsData.length == 1) {
     paginationData += `<li class="page-item disabled">
       <a class="page-link" href="#" aria-label="Next">
-        <span aria-hidden="true">&laquo;</span></a></li>`;
+        <span aria-hidden="true">&raquo;</span></a></li>`;
   } else {
     paginationData += `<a class="page-link" href="#" aria-label="Next">
       <span aria-hidden="true">&raquo;</span></a>`;
@@ -199,7 +199,11 @@ const getInfoOnclickUnclustered = async (e) => {
   HTMLpagination.innerHTML = paginationData;
 
   //Pagination feature
-  const pageItems = document.querySelectorAll(".page-item");
+  const pagePrev = document.querySelector('.page-link[aria-label="Previous"]');
+  const pageNext = document.querySelector('.page-link[aria-label="Next"]');
+  const pageItems = document.querySelectorAll(
+    '.page-item[aria-current="page"]'
+  );
   pageItems.forEach((item) => {
     item.addEventListener("click", (e) => {
       e.preventDefault();
@@ -228,7 +232,90 @@ const getInfoOnclickUnclustered = async (e) => {
       HTMLthumbnail.src = adsData[page - 1].image;
       //Set active
       e.target.parentNode.classList.add("active");
+      //Set enable/disable for prev/next button
+      pagePrev.parentNode.classList.remove("disabled");
+      pageNext.parentNode.classList.remove("disabled");
+      if (page == 1) {
+        pagePrev.parentNode.classList.add("disabled");
+      } else if (page == adsData.length) {
+        pageNext.parentNode.classList.add("disabled");
+      }
     });
+  });
+
+  pagePrev.addEventListener("click", (e) => {
+    if (pagePrev.parentNode.classList.contains("disabled")) {
+      return;
+    }
+    const activeItem = document.querySelector(".page-item.active");
+    activeItem.classList.remove("active");
+
+    const page = parseInt(activeItem.firstChild.innerText) - 1;
+
+    HTMLid.innerHTML = adsData[page - 1].id;
+    HTMLtitle.innerHTML = `${
+      adsData[page - 1].BoardType.type
+    }<span class="ms-2 badge ${
+      adsData[page - 1].status == "Đã cấp phép"
+        ? "bg-success"
+        : adsData[page - 1].status == "Chưa cấp phép"
+        ? "bg-warning"
+        : "bg-danger"
+    }" id="board-status">${adsData[page - 1].status}</span></a>`;
+    HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
+    HTMLsize.innerHTML = adsData[page - 1].size;
+    HTMLqty.innerHTML = adsData[page - 1].quantity;
+    HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
+    HTMLclassification.innerHTML =
+      adsData[page - 1].AdsPlacement.LocationType.locationType;
+    HTMLthumbnail.src = adsData[page - 1].image;
+    //Set active
+    activeItem.previousSibling.classList.add("active");
+    //Deactive prev button if reach the first page
+    pageNext.parentNode.classList.remove("disabled");
+    pagePrev.parentNode.classList.remove("disabled");
+    if (page == 1) {
+      pagePrev.parentNode.classList.add("disabled");
+    }
+  });
+
+  pageNext.addEventListener("click", (e) => {
+    if (pageNext.parentNode.classList.contains("disabled")) {
+      return;
+    }
+    const activeItem = document.querySelector(".page-item.active");
+    activeItem.classList.remove("active");
+
+    const page = parseInt(activeItem.firstChild.innerText) + 1;
+    HTMLid.innerHTML = adsData[page - 1].id;
+
+    HTMLtitle.innerHTML = `${
+      adsData[page - 1].BoardType.type
+    }<span class="ms-2 badge ${
+      adsData[page - 1].status == "Đã cấp phép"
+        ? "bg-success"
+        : adsData[page - 1].status == "Chưa cấp phép"
+        ? "bg-warning"
+        : "bg-danger"
+    }" id="board-status">${adsData[page - 1].status}</span></a>`;
+    HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
+    HTMLsize.innerHTML = adsData[page - 1].size;
+    HTMLqty.innerHTML = adsData[page - 1].quantity;
+    HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
+    HTMLclassification.innerHTML =
+      adsData[page - 1].AdsPlacement.LocationType.locationType;
+    HTMLthumbnail.src = adsData[page - 1].image;
+    //Set active
+    activeItem.nextSibling.classList.add("active");
+    //Deactive next button if reach the last page
+    pageNext.parentNode.classList.remove("disabled");
+
+    pagePrev.parentNode.classList.remove("disabled");
+
+
+    if (page == adsData.length) {
+      pageNext.parentNode.classList.add("disabled");
+    }
   });
 };
 
