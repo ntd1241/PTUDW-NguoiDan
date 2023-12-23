@@ -5,8 +5,9 @@ const reportedColor = "#eb3434";
 const selfReportedColor = "#848991";
 const unclusteredRadius = 12;
 let adsData;
-let selectedLocation;
-let selectedBoard;
+let prevReportTableState=0
+let selectedLocation = undefined;
+let selectedBoard = undefined;
 const sipulatedPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
@@ -143,7 +144,7 @@ const getInfoOnclickUnclustered = async (e) => {
     const popover = new bootstrap.Popover(HTMLboardContract);
     popover.update();
   } else {
-    console.log(adsData[0])
+    console.log(adsData[0]);
     HTMLid.innerHTML = adsData[0].id;
     HTMLnumber.innerHTML = `<p>Địa điểm này có ${adsData.length} quảng cáo`;
     HTMLtitle.innerHTML = `${
@@ -165,7 +166,8 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLform.innerHTML = adsData[0].AdsPlacement.AdsType.type;
     HTMLclassification.innerHTML =
       adsData[0].AdsPlacement.LocationType.locationType;
-    HTMLthumbnail.src = adsData[0].image;
+    // HTMLthumbnail.src = adsData[0].image;
+    HTMLthumbnail.src = `${serverPath}/images/permitRequests/${adsData[0].image}`;
     HTMLboardContract.setAttribute(
       "data-bs-content",
       `Ngày hết hạn: ${
@@ -243,7 +245,11 @@ const getInfoOnclickUnclustered = async (e) => {
       HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
       HTMLclassification.innerHTML =
         adsData[page - 1].AdsPlacement.LocationType.locationType;
-      HTMLthumbnail.src = adsData[page - 1].image;
+      // HTMLthumbnail.src = adsData[page - 1].image;
+      HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
+        adsData[page - 1].image
+      }`;
+
       HTMLboardContract.setAttribute(
         "data-bs-content",
         `Ngày hết hạn: ${
@@ -297,7 +303,11 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
     HTMLclassification.innerHTML =
       adsData[page - 1].AdsPlacement.LocationType.locationType;
-    HTMLthumbnail.src = adsData[page - 1].image;
+    // HTMLthumbnail.src = adsData[page - 1].image;
+    HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
+      adsData[page - 1].image
+    }`;
+
     HTMLboardContract.setAttribute(
       "data-bs-content",
       `Ngày hết hạn: ${
@@ -348,7 +358,10 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
     HTMLclassification.innerHTML =
       adsData[page - 1].AdsPlacement.LocationType.locationType;
-    HTMLthumbnail.src = adsData[page - 1].image;
+    // HTMLthumbnail.src = adsData[page - 1].image;
+    HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
+      adsData[page - 1].image
+    }`;
     HTMLboardContract.setAttribute(
       "data-bs-content",
       `Ngày hết hạn: ${
@@ -417,9 +430,13 @@ const searchFunc = async (e) => {
 
 const getReportTable = async (e, flag) => {
   const createReport = document.querySelector("#create-report");
+  const exitSelfReport=document.querySelector('#exit-self-report')
   createReport.style.display = "inline-block";
+  exitSelfReport.style.display="none"
+
   let respond;
   if (flag == 0) {
+    prevReportTableState=flag
     let locationId;
     if (selectedLocation) {
       locationId = selectedLocation.properties.id;
@@ -429,6 +446,7 @@ const getReportTable = async (e, flag) => {
       `${serverPath}/citizen/get-report-data?placement=${locationId}&board=undefined`
     );
   } else if (flag == 1) {
+    prevReportTableState=flag
     let page =
       document.querySelector(".page-item.active") != null
         ? document.querySelector(".page-item.active").innerText
@@ -443,6 +461,8 @@ const getReportTable = async (e, flag) => {
       `${serverPath}/citizen/get-report-data?board=${board.id}&placement=undefined`
     );
   } else if (flag == 2) {
+    createReport.style.display = "none";
+    exitSelfReport.style.display = "inline-block";
     let selfReportedData = localStorage.getItem("reportedData");
     if (selfReportedData != null) {
       selfReportedData = JSON.parse(selfReportedData);
@@ -477,10 +497,10 @@ const getReportTable = async (e, flag) => {
     HTMLlocationNoReports.innerText = `${handled.length}/${reportData.length}`;
     HTMLlocationAddress.innerText = selectedLocation.properties.address;
   } else if (flag == 2) {
-    HTMLlocationId.innerText = "Dang hiển thị lịch sử báo cáo";
-    HTMLlocationType.innerText = "Dang hiển thị lịch sử báo cáo";
+    HTMLlocationId.innerText = "Đang hiển thị lịch sử báo cáo";
+    HTMLlocationType.innerText = "Đang hiển thị lịch sử báo cáo";
     HTMLlocationNoReports.innerText = `${handled.length}/${reportData.length}`;
-    HTMLlocationAddress.innerText = "Dang hiển thị lịch sử báo cáo";
+    HTMLlocationAddress.innerText = "Đang hiển thị lịch sử báo cáo";
   }
 
   console.log(reportData[0]);
@@ -1130,14 +1150,6 @@ formSubmit.addEventListener("click", async (e) => {
   }
   $(document).ready(function () {
     let dataTable = $("#myTable").DataTable();
-    // const item = {
-    //   id: respondJSON.id,
-    //   name: respondJSON.name,
-    //   ReportType: { type: formattedType },
-    //   createdAt: new Date().toISOString().split("T")[0],
-    //   status: respondJSON.status,
-    //   image: respondJSON.image,
-    // };
 
     const rowDataArr = [
       newReport.id,
@@ -1172,10 +1184,17 @@ reportBoardButton.addEventListener("click", async (e) => {
   getReportTable(e, 1);
 });
 
+//Get table when click self report
 const viewSelfReportButton = document.querySelector("#view-self-report");
 viewSelfReportButton.addEventListener("click", async (e) => {
   getReportTable(e, 2);
 });
+
+//Exit self report 
+const exitSelfReport=document.querySelector('#exit-self-report')
+exitSelfReport.addEventListener("click",(e)=>{
+  getReportTable(e,prevReportTableState)
+})
 
 const mapTab = document.querySelector("#map-tab");
 mapTab.addEventListener("click", (e) => {
@@ -1188,4 +1207,9 @@ reportTab.addEventListener("click", (e) => {
   e.preventDefault();
   const createReport = document.querySelector("#create-report");
   createReport.style.display = "none";
+
+  if (selectedLocation != undefined) {
+    getReportTable(e, 0);
+  }
 });
+
