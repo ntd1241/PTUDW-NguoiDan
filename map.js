@@ -5,9 +5,10 @@ const reportedColor = "#eb3434";
 const selfReportedColor = "#848991";
 const unclusteredRadius = 12;
 let adsData;
-let prevReportTableState=0
+let prevReportTableState = 0;
 let selectedLocation = undefined;
 let selectedBoard = undefined;
+let isClickPoint = 0;
 const sipulatedPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
@@ -24,6 +25,10 @@ const selfReportedPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
 });
+const previousSelected = {
+  type: undefined,
+  id: undefined,
+};
 const serverPath = "http://localhost:5000";
 
 // Mapbox generation
@@ -110,6 +115,12 @@ const mouseLeaveEventUnclustered = (layer) => {
 };
 
 const getInfoOnclickUnclustered = async (e) => {
+  //Display report button
+  document.querySelector("#location-report").style.display = "inline-block";
+  document.querySelector("#board-report").style.display = "inline-block";
+  isClickPoint = 1;
+
+  //Get the data and change UI
   selectedLocation = { ...e.features[0], lngLat: e.lngLat };
   const target = e.features[0];
   const fetchedData = await fetch(
@@ -428,15 +439,16 @@ const searchFunc = async (e) => {
   }
 };
 
-const getReportTable = async (e, flag) => {
+const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   const createReport = document.querySelector("#create-report");
-  const exitSelfReport=document.querySelector('#exit-self-report')
+  const exitSelfReport = document.querySelector("#exit-self-report");
   createReport.style.display = "inline-block";
-  exitSelfReport.style.display="none"
-
+  exitSelfReport.style.display = "none";
+  let type = "";
   let respond;
   if (flag == 0) {
-    prevReportTableState=flag
+    type = "location";
+    prevReportTableState = flag;
     let locationId;
     if (selectedLocation) {
       locationId = selectedLocation.properties.id;
@@ -446,7 +458,8 @@ const getReportTable = async (e, flag) => {
       `${serverPath}/citizen/get-report-data?placement=${locationId}&board=undefined`
     );
   } else if (flag == 1) {
-    prevReportTableState=flag
+    type = "board";
+    prevReportTableState = flag;
     let page =
       document.querySelector(".page-item.active") != null
         ? document.querySelector(".page-item.active").innerText
@@ -478,8 +491,15 @@ const getReportTable = async (e, flag) => {
     }
   }
 
-  const data = await respond.json();
+  let data;
+  if (flag ==3||(flag==2&&localStorage.getItem("reportedData")==null)) {
+    data = JSON.stringify([]);
+  } else {
+    data = await respond.json();
+  }
+
   const reportData = JSON.parse(data);
+  console.log(reportData);
 
   const handled = reportData.filter((item) => {
     return item.status == "Đã xử lý";
@@ -501,9 +521,42 @@ const getReportTable = async (e, flag) => {
     HTMLlocationType.innerText = "Đang hiển thị lịch sử báo cáo";
     HTMLlocationNoReports.innerText = `${handled.length}/${reportData.length}`;
     HTMLlocationAddress.innerText = "Đang hiển thị lịch sử báo cáo";
+  } else if (flag == 3) {
+    HTMLlocationId.innerText = "Chưa chọn điểm";
+    HTMLlocationType.innerHTML = "Chưa chọn điểm";
+    HTMLlocationNoReports.innerText = "Chưa chọn điểm";
+    HTMLlocationAddress.innerHTML = "Chưa chọn điểm";
+  }
+  //Check if the user change the selected target
+  console.log(previousSelected);
+  if (previousSelected.type != type) {
+    resetReportInfo = true;
+  } else if (
+    previousSelected.type == "board" &&
+    previousSelected.id != selectedBoard
+  ) {
+    resetReportInfo = true;
+  } else if (
+    previousSelected.type == "location" &&
+    previousSelected.id != selectedLocation
+  ) {
+    resetReportInfo = true;
   }
 
-  console.log(reportData[0]);
+  //Change report info
+  if (resetReportInfo) {
+    document.querySelector("#report-id").innerText = "Chưa có thông tin";
+    document.querySelector("#report-datetime").innerText = "Chưa có thông tin";
+    document.querySelector("#report-content").innerText = "Chưa có thông tin";
+    document.querySelector("#report-img-1").src = "";
+    document.querySelector("#report-img-2").src = "";
+    document.querySelector("#reporter-name").innerText = "Chưa có thông tin";
+    document.querySelector("#reporter-email").innerText = "Chưa có thông tin";
+    document.querySelector(
+      "#report-type"
+    ).innerHTML = `Chưa có thông tin <span class="ms-2 badge bg-secondary" id="report-status">Chưa có thông tin</span>`;
+  }
+
   //Change data table
   $(document).ready(function () {
     var dataTable = $("#myTable").DataTable();
@@ -530,10 +583,19 @@ const getReportTable = async (e, flag) => {
 
     //Re create click event
     const viewButtons = document.querySelectorAll("td a");
-    viewButtons.forEach((item) => {
-      item.addEventListener("click", viewDetailButtonEvent);
-    });
+    if (viewButtons) {
+      viewButtons.forEach((item) => {
+        item.addEventListener("click", viewDetailButtonEvent);
+      });
+    }
   });
+  //Assign to previous select targer
+  previousSelected.type = type;
+  if (flag == 0) {
+    previousSelected.id = selectedLocation;
+  } else if (flag == 1) {
+    previousSelected.id = selectedBoard;
+  }
 };
 
 //Layer generation
@@ -980,6 +1042,17 @@ map.on("click", async (e) => {
   } catch (err) {
     console.log(err);
   }
+
+  //Reset Report section
+  if (isClickPoint == 1) {
+    isClickPoint = 0;
+  } else {
+    document.querySelector("#location-report").style.display = "none";
+    document.querySelector("#board-report").style.display = "none";
+    selectedBoard = undefined;
+    selectedLocation = undefined;
+    getReportTable(e, 3, true);
+  }
 });
 
 //Submit form handle
@@ -1006,10 +1079,9 @@ const viewDetailButtonEvent = (e) => {
     const reportData = JSON.parse(clickedRow.dataset.report);
     const images =
       reportData.image != null ? reportData.image.split(",") : undefined;
-    // console.log(reportData);
 
     const HTMLreportId = document.querySelector("#report-id");
-    const HTMLreportStatus = document.querySelector("#report-status");
+    const HTMLreportType = document.querySelector("#report-type");
     const HTMLreportDatetime = document.querySelector("#report-datetime");
     const HTMLreportContent = document.querySelector("#report-content");
     const HTMLreportImg1 = document.querySelector("#report-img-1");
@@ -1017,8 +1089,10 @@ const viewDetailButtonEvent = (e) => {
     const HTMLreporterName = document.querySelector("#reporter-name");
     const HTMLreporterEmail = document.querySelector("#reporter-email");
 
+    console.log(reportData);
     HTMLreportId.innerHTML = reportData.id;
-    HTMLreportStatus.innerHTML = reportData.status;
+    HTMLreportType.innerHTML = `${reportData.ReportType.type}<span class="ms-2 badge bg-secondary" id="report-status"></span>`;
+    document.querySelector("#report-status").innerText = reportData.status;
     HTMLreportDatetime.innerHTML = reportData.createdAt.split("T")[0];
     HTMLreportContent.innerHTML = reportData.reportContent;
     if (images == undefined) {
@@ -1190,11 +1264,11 @@ viewSelfReportButton.addEventListener("click", async (e) => {
   getReportTable(e, 2);
 });
 
-//Exit self report 
-const exitSelfReport=document.querySelector('#exit-self-report')
-exitSelfReport.addEventListener("click",(e)=>{
-  getReportTable(e,prevReportTableState)
-})
+//Exit self report
+const exitSelfReport = document.querySelector("#exit-self-report");
+exitSelfReport.addEventListener("click", (e) => {
+  getReportTable(e, prevReportTableState);
+});
 
 const mapTab = document.querySelector("#map-tab");
 mapTab.addEventListener("click", (e) => {
@@ -1208,8 +1282,11 @@ reportTab.addEventListener("click", (e) => {
   const createReport = document.querySelector("#create-report");
   createReport.style.display = "none";
 
-  if (selectedLocation != undefined) {
+  if (selectedBoard != undefined) {
+    getReportTable(e, 1);
+  } else if (selectedLocation != undefined) {
     getReportTable(e, 0);
+  } else {
+    getReportTable(e, 3);
   }
 });
-
