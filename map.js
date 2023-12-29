@@ -1213,6 +1213,7 @@ formSubmit.addEventListener("click", async (e) => {
   console.log(respondJSON);
 
   const newReport = respondJSON.newReport;
+  console.log(newReport)
   const id = newReport.id;
 
   // Save to local storage
@@ -1229,6 +1230,8 @@ formSubmit.addEventListener("click", async (e) => {
   } else if (type == "GDTM") {
     formattedType = "Giải đáp thắc mắc";
   }
+  newReport.ReportType={type:formattedType}
+
   $(document).ready(function () {
     let dataTable = $("#myTable").DataTable();
 
