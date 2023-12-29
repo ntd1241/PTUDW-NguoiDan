@@ -219,8 +219,8 @@ const getInfoOnclickUnclustered = async (e) => {
       <a class="page-link" href="#" aria-label="Next">
         <span aria-hidden="true">&raquo;</span></a></li>`;
   } else {
-    paginationData += `<a class="page-link" href="#" aria-label="Next">
-      <span aria-hidden="true">&raquo;</span></a>`;
+    paginationData += `<li class="page-item "><a class="page-link" href="#" aria-label="Next">
+      <span aria-hidden="true">&raquo;</span></a></li>`;
   }
   HTMLpagination.innerHTML = paginationData;
   //Pagination feature
