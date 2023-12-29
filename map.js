@@ -48,7 +48,7 @@ map.addControl(new mapboxgl.FullscreenControl());
 //Locate user control
 const geolocate = new mapboxgl.GeolocateControl({
   fitBoundsOptions: {
-    zoom:17
+    zoom: 17,
   },
   showAccuracyCircle: false,
   positionOptions: {
@@ -92,12 +92,12 @@ const mouseEnterEventUnclustered = (e, layer) => {
   const coordinates = e.features[0].geometry.coordinates.slice();
   const { id, address, adsType, area, locationType, status } =
     e.features[0].properties;
-
+  const areaObj = JSON.parse(area);
   while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
   }
 
-  const popupDesc = `<b>${adsType}</b><p>${locationType}</p><p>${address}</p><h5>${status}</h5>`;
+  const popupDesc = `<b>${adsType}</b><p>${locationType}</p><p>${address}, ${areaObj.ward}, ${areaObj.district}</p><h5>${status}</h5>`;
   popup.setLngLat(coordinates).setHTML(popupDesc).addTo(map);
 };
 
@@ -126,11 +126,13 @@ const getInfoOnclickUnclustered = async (e) => {
   //Get the data and change UI
   selectedLocation = { ...e.features[0], lngLat: e.lngLat };
   const target = e.features[0];
+  const areaObjTarget = JSON.parse(target.properties.area);
   const fetchedData = await fetch(
     `${serverPath}/citizen/get-ads/${e.features[0].properties.id}`
   );
   const data = await fetchedData.json();
   adsData = JSON.parse(data);
+  console.log(adsData);
 
   const HTMLid = document.querySelector("#board-id");
   const HTMLnumber = document.querySelector("#num-ads");
@@ -148,7 +150,7 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLid.innerHTML = "Chưa có thông tin";
     HTMLnumber.innerHTML = `<p>Địa điểm này có 0 quảng cáo</p>`;
     HTMLtitle.innerHTML = `Chưa có thông tin <span class="ms-2 badge bg-secondary" id="board-status">Chưa có thông tin</span></a>`;
-    HTMLaddr.innerHTML = target.properties.address;
+    HTMLaddr.innerHTML = `${target.properties.address}, ${areaObjTarget.ward}, ${areaObjTarget.district}`;
     HTMLsize.innerHTML = "Chưa có thông tin";
     HTMLqty.innerHTML = "Chưa có thông tin";
     HTMLform.innerHTML = target.properties.adsType;
@@ -158,7 +160,6 @@ const getInfoOnclickUnclustered = async (e) => {
     const popover = new bootstrap.Popover(HTMLboardContract);
     popover.update();
   } else {
-    console.log(adsData[0]);
     HTMLid.innerHTML = adsData[0].id;
     HTMLnumber.innerHTML = `<p>Địa điểm này có ${adsData.length} quảng cáo`;
     HTMLtitle.innerHTML = `${
@@ -174,7 +175,7 @@ const getInfoOnclickUnclustered = async (e) => {
     }" id="board-status">${
       adsData[0].status != "" ? adsData[0].status : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = adsData[0].AdsPlacement.address;
+    HTMLaddr.innerHTML = `${adsData[0].AdsPlacement.address}, ${adsData[0].AdsPlacement.Area.ward}, ${adsData[0].AdsPlacement.Area.district}`;
     HTMLsize.innerHTML = adsData[0].size;
     HTMLqty.innerHTML = adsData[0].quantity;
     HTMLform.innerHTML = adsData[0].AdsPlacement.AdsType.type;
@@ -253,7 +254,7 @@ const getInfoOnclickUnclustered = async (e) => {
           ? adsData[page - 1].status
           : "Chưa có quảng cáo"
       }</span></a>`;
-      HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
+      HTMLaddr.innerHTML = `${adsData[page-1].AdsPlacement.address}, ${adsData[page-1].AdsPlacement.Area.ward}, ${adsData[page-1].AdsPlacement.Area.district}`;
       HTMLsize.innerHTML = adsData[page - 1].size;
       HTMLqty.innerHTML = adsData[page - 1].quantity;
       HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
@@ -311,7 +312,7 @@ const getInfoOnclickUnclustered = async (e) => {
         ? adsData[page - 1].status
         : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
+    HTMLaddr.innerHTML = `${adsData[page-1].AdsPlacement.address}, ${adsData[page-1].AdsPlacement.Area.ward}, ${adsData[page-1].AdsPlacement.Area.district}`;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
     HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
@@ -366,7 +367,7 @@ const getInfoOnclickUnclustered = async (e) => {
         ? adsData[page - 1].status
         : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = adsData[page - 1].AdsPlacement.address;
+    HTMLaddr.innerHTML = `${adsData[page-1].AdsPlacement.address}, ${adsData[page-1].AdsPlacement.Area.ward}, ${adsData[page-1].AdsPlacement.Area.district}`;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
     HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
@@ -606,7 +607,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
 
 //Layer generation
 map.on("load", async () => {
-  geolocate.trigger()
+  geolocate.trigger();
   //Fetched section
   const fetchedsipulatedData = await fetch(
     `${serverPath}/citizen/get-sipulated`
@@ -1065,15 +1066,25 @@ map.on("click", async (e) => {
 //Submit form handle
 const formValidation = (data) => {
   if (!data.name || !data.email || !data.phone || !data.type || !data.content) {
-    alert("Please fill in all required fields.");
+    alert("Bạn chưa điền tất cả trường");
+    return false;
+  }
+  const numFiles = document.querySelector("#form-report-images").files.length;
+  if (numFiles > 2) {
+    alert("Quá nhiều hình");
+    return false;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(data.email)) {
+    alert("Email không hợp lệ");
+    return false;
+  }
+  const phoneRegex = /^((\+84|84|0)\d{9})$/;
+  if (!phoneRegex.test(data.phone)) {
+    alert("Số điện thoại không hợp lệ");
     return false;
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(data.email)) {
-    alert("Please enter a valid email address.");
-    return false;
-  }
   return true;
 };
 
@@ -1213,7 +1224,7 @@ formSubmit.addEventListener("click", async (e) => {
   console.log(respondJSON);
 
   const newReport = respondJSON.newReport;
-  console.log(newReport)
+  console.log(newReport);
   const id = newReport.id;
 
   // Save to local storage
@@ -1230,7 +1241,7 @@ formSubmit.addEventListener("click", async (e) => {
   } else if (type == "GDTM") {
     formattedType = "Giải đáp thắc mắc";
   }
-  newReport.ReportType={type:formattedType}
+  newReport.ReportType = { type: formattedType };
 
   $(document).ready(function () {
     let dataTable = $("#myTable").DataTable();
