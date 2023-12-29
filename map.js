@@ -46,17 +46,20 @@ const map = new mapboxgl.Map({
 map.addControl(new mapboxgl.NavigationControl());
 map.addControl(new mapboxgl.FullscreenControl());
 //Locate user control
-map.addControl(
-  new mapboxgl.GeolocateControl({
-    positionOptions: {
-      enableHighAccuracy: true,
-    },
-    // When active the map will receive updates to the device's location as it changes.
-    trackUserLocation: true,
-    // Draw an arrow next to the location dot to indicate which direction the device is heading.
-    showUserHeading: true,
-  })
-);
+const geolocate = new mapboxgl.GeolocateControl({
+  fitBoundsOptions: {
+    zoom:17
+  },
+  showAccuracyCircle: false,
+  positionOptions: {
+    enableHighAccuracy: true,
+  },
+  // When active the map will receive updates to the device's location as it changes.
+  trackUserLocation: true,
+  // Draw an arrow next to the location dot to indicate which direction the device is heading.
+  showUserHeading: true,
+});
+map.addControl(geolocate);
 
 const inspectCluster = (e, layer) => {
   const features = map.queryRenderedFeatures(e.point, {
@@ -492,7 +495,10 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   }
 
   let data;
-  if (flag ==3||(flag==2&&localStorage.getItem("reportedData")==null)) {
+  if (
+    flag == 3 ||
+    (flag == 2 && localStorage.getItem("reportedData") == null)
+  ) {
     data = JSON.stringify([]);
   } else {
     data = await respond.json();
@@ -600,6 +606,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
 
 //Layer generation
 map.on("load", async () => {
+  geolocate.trigger()
   //Fetched section
   const fetchedsipulatedData = await fetch(
     `${serverPath}/citizen/get-sipulated`
