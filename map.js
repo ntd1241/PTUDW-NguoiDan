@@ -1096,7 +1096,7 @@ const viewDetailButtonEvent = (e) => {
   if (clickedRow) {
     const reportData = JSON.parse(clickedRow.dataset.report);
     const images =
-      reportData.image != null ? reportData.image.split(",") : undefined;
+      reportData.image != null ? reportData.image.split(", ") : undefined;
 
     const HTMLreportId = document.querySelector("#report-id");
     const HTMLreportType = document.querySelector("#report-type");
