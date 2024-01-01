@@ -132,7 +132,7 @@ const getInfoOnclickUnclustered = async (e) => {
   );
   const data = await fetchedData.json();
   adsData = JSON.parse(data);
-  console.log(adsData);
+
 
   const HTMLid = document.querySelector("#board-id");
   const HTMLnumber = document.querySelector("#num-ads");
@@ -435,7 +435,6 @@ const searchFunc = async (e) => {
       throw new Error("Network response was not ok");
     }
     const data = await respond.json();
-    console.log(data);
     const geometry = data.results[0].geometry;
     map.flyTo({ center: geometry });
   } catch (err) {
@@ -506,7 +505,6 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   }
 
   const reportData = JSON.parse(data);
-  console.log(reportData);
 
   const handled = reportData.filter((item) => {
     return item.status == "Đã xử lý";
@@ -535,7 +533,6 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
     HTMLlocationAddress.innerHTML = "Chưa chọn điểm";
   }
   //Check if the user change the selected target
-  console.log(previousSelected);
   if (previousSelected.type != type) {
     resetReportInfo = true;
   } else if (
@@ -605,10 +602,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   }
 };
 
-//Layer generation
-map.on("load", async () => {
-  geolocate.trigger();
-  //Fetched section
+const fetchDataFromServer=async()=>{
   const fetchedsipulatedData = await fetch(
     `${serverPath}/citizen/get-sipulated`
   );
@@ -619,6 +613,13 @@ map.on("load", async () => {
   const sipulated = await fetchedsipulatedData.json();
   const nonSipulated = await fetchedNonSipulatedData.json();
   const reported = await fetchedReportData.json();
+  return {sipulated,nonSipulated,reported}
+}
+//Layer generation
+map.on("load", async () => {
+  geolocate.trigger();
+  //Fetched section
+  const {sipulated,nonSipulated,reported}=await fetchDataFromServer()
   const selfReported = JSON.parse(localStorage.getItem("reportedLocation"));
 
   // Sipulated source data
@@ -1107,7 +1108,6 @@ const viewDetailButtonEvent = (e) => {
     const HTMLreporterName = document.querySelector("#reporter-name");
     const HTMLreporterEmail = document.querySelector("#reporter-email");
 
-    console.log(reportData);
     HTMLreportId.innerHTML = reportData.id;
     HTMLreportType.innerHTML = `${reportData.ReportType.type}<span class="ms-2 badge bg-secondary" id="report-status"></span>`;
     document.querySelector("#report-status").innerText = reportData.status;
@@ -1221,10 +1221,8 @@ formSubmit.addEventListener("click", async (e) => {
     body: formData,
   });
   const respondJSON = await respond.json();
-  console.log(respondJSON);
 
   const newReport = respondJSON.newReport;
-  console.log(newReport);
   const id = newReport.id;
 
   // Save to local storage
@@ -1265,6 +1263,12 @@ formSubmit.addEventListener("click", async (e) => {
       item.addEventListener("click", viewDetailButtonEvent);
     });
   });
+  //Re fetch data
+  const {sipulated,nonSipulated,reported}=await fetchDataFromServer()
+  map.getSource('sipulated').setData(JSON.parse(sipulated))
+  map.getSource('nonSipulated').setData(JSON.parse(nonSipulated))
+  map.getSource('reported').setData(JSON.parse(reported))
+  
 });
 
 //Get table when click placement report
