@@ -1073,6 +1073,31 @@ map.on("click", async (e) => {
   } else {
     document.querySelector("#location-report").style.display = "none";
     document.querySelector("#board-report").style.display = "none";
+    const HTMLid = document.querySelector("#board-id");
+    const HTMLnumber = document.querySelector("#num-ads");
+    const HTMLtitle = document.querySelector("#board-title");
+    const HTMLaddr = document.querySelector("#board-address");
+    const HTMLsize = document.querySelector("#board-size");
+    const HTMLqty = document.querySelector("#board-quantity");
+    const HTMLform = document.querySelector("#board-form");
+    const HTMLclassification = document.querySelector("#board-classification");
+    const HTMLthumbnail = document.querySelector("#board-thumbnail");
+    const HTMLpagination = document.querySelector("#board-pagination");
+    const HTMLboardContract = document.querySelector("#board-contract");
+
+    HTMLid.innerHTML = "Chưa có thông tin";
+    HTMLnumber.innerHTML = `<p>Địa điểm này có 0 quảng cáo</p>`;
+    HTMLtitle.innerHTML = `Chưa có thông tin <span class="ms-2 badge bg-secondary" id="board-status">Chưa có thông tin</span></a>`;
+    HTMLaddr.innerHTML = `Chưa có thông tin để hiển thị`;
+    HTMLsize.innerHTML = "Chưa có thông tin";
+    HTMLqty.innerHTML = "Chưa có thông tin";
+    HTMLform.innerHTML = "Chưa có thông tin";
+    HTMLclassification.innerHTML = "Chưa có thông tin";
+    HTMLthumbnail.src = "";
+    HTMLboardContract.setAttribute("data-bs-content", ``);
+    const popover = new bootstrap.Popover(HTMLboardContract);
+    popover.update();
+
     selectedBoard = undefined;
     selectedLocation = undefined;
     getReportTable(e, 3, true);
