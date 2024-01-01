@@ -447,7 +447,6 @@ const searchFunc = async (e) => {
   }
 };
 
-
 //Case 0: location
 //Case 1: board
 //Case 2: Self report
@@ -531,7 +530,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
     HTMLlocationId.innerText = selectedLocation.properties.id;
     HTMLlocationType.innerText = flag == 0 ? "Địa điểm" : "Bảng quảng cáo ";
     HTMLlocationNoReports.innerText = `${handled.length}/${reportData.length}`;
-    HTMLlocationAddress.innerText = selectedLocation.properties.address; 
+    HTMLlocationAddress.innerText = selectedLocation.properties.address;
     createReport.style.display = "inline-block";
   } else if (flag == 2) {
     HTMLlocationId.innerText = "Đang hiển thị lịch sử báo cáo";
@@ -545,7 +544,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
     HTMLlocationNoReports.innerText = "Chưa chọn điểm";
     HTMLlocationAddress.innerHTML = "Chưa chọn điểm";
 
-    prevReportTableState=3
+    prevReportTableState = 3;
   }
   //Check if the user change the selected target
   if (previousSelected.type != type) {
@@ -1307,6 +1306,14 @@ formSubmit.addEventListener("click", async (e) => {
   map.getSource("sipulated").setData(JSON.parse(sipulated));
   map.getSource("nonSipulated").setData(JSON.parse(nonSipulated));
   map.getSource("reported").setData(JSON.parse(reported));
+
+  if (selectedBoard) {
+    const boardStatusHTML = document.querySelector("#board-status");
+    boardStatusHTML.classList.remove("bg-success");
+    boardStatusHTML.classList.remove("bg-warning");
+    boardStatusHTML.classList.add("bg-danger");
+    boardStatusHTML.innerText = "Bị báo cáo";
+  }
 });
 
 //Get table when click placement report
