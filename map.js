@@ -626,7 +626,7 @@ map.on("load", async () => {
     type: "geojson",
     data: JSON.parse(sipulated),
     cluster: true,
-    clusterMaxZoom: 15,
+    clusterMaxZoom: 17,
     clusterRadius: 20,
   });
   //Sipulated cluster
@@ -714,8 +714,8 @@ map.on("load", async () => {
     type: "geojson",
     data: JSON.parse(nonSipulated),
     cluster: true,
-    clusterMaxZoom: 15,
-    clusterRadius: 15,
+    clusterMaxZoom: 17,
+    clusterRadius: 20,
   });
   //Non sipulated cluster
   map.addLayer({
@@ -801,8 +801,8 @@ map.on("load", async () => {
     type: "geojson",
     data: JSON.parse(reported),
     cluster: true,
-    clusterMaxZoom: 15,
-    clusterRadius: 15,
+    clusterMaxZoom: 17,
+    clusterRadius: 20,
   });
   //Reported cluster
   map.addLayer({
@@ -888,7 +888,7 @@ map.on("load", async () => {
     type: "geojson",
     data: selfReported,
     cluster: true,
-    clusterMaxZoom: 15,
+    clusterMaxZoom: 17,
     clusterRadius: 20,
   });
   map.addLayer({
