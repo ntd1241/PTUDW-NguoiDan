@@ -290,6 +290,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
+            <form action="" id="first-form">
             <h6 class="mb-3">Vui lòng nhập thông tin chi tiết của bạn!</h6>
               <div class="mb-3">
                 <label for="form-reporter-name" class="form-label">Họ và tên</label>
@@ -302,20 +303,24 @@
                 <label for="form-reporter-phone" class="form-label">Số điện thoại</label>
                 <div class="input-group has-validation">
                   <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-                  <input type="text" class="form-control " id="form-reporter-phone" placeholder="SĐT" required>
+                  <input type="text" class="form-control " id="form-reporter-phone" placeholder="SĐT" pattern="^((\+84|84|0)\d{9})$" required>
                 </div>
               </div>
               <div class="mb-3">
                 <label for="form-reporter-email" class="form-label">Địa chỉ Email</label>
                 <div class="input-group has-validation">
                   <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                  <input type="text" class="form-control " id="form-reporter-email" placeholder="Email" required>
+                  <input type="text" class="form-control " id="form-reporter-email" placeholder="Email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" required >
                 </div>
               </div>
-
+            </form>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-primary" data-bs-target="#reportModal-details" data-bs-toggle="modal">Bước tiếp theo</button>
+            <button
+            type="submit"
+            class="btn btn-primary"
+            form="first-form"
+          >Bước tiếp theo</button>
           </div>
         </div>
       </div>
@@ -328,6 +333,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
+            <form action="" id="second-form">
             <h6 class="mb-3">Vui lòng điền nội dung báo cáo!</h6>
             <div class="mb-3">
               <label for="form-report-type" class="form-label">Hình thức báo cáo</label>
@@ -348,10 +354,15 @@
               <label for="form-report-images" class="form-label">Hình ảnh minh hoạ</label>
               <input class="form-control" type="file" id="form-report-images" multiple name="img" accept="image/*">
             </div>
+          </form>
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal">Quay trở lại</button>
-            <button class="btn btn-primary" data-bs-target="#reportModal-captcha" data-bs-toggle="modal">Tiếp tục</button>
+            <button
+            type="submit"
+            class="btn btn-primary"
+            form="second-form"
+          >Bước tiếp theo</button>
           </div>
         </div>
       </div>
