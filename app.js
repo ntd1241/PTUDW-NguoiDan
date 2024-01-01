@@ -81,6 +81,7 @@ ClassicEditor.create(document.querySelector("#editor"))
     console.error(error);
   });
 
+
 const checkValidateForm = (e, first, sec) => {
   e.preventDefault();
   var thisModal = bootstrap.Modal.getOrCreateInstance(
@@ -99,3 +100,9 @@ document.querySelector('#first-form').addEventListener('submit',(e)=>{
 document.querySelector('#second-form').addEventListener('submit',(e)=>{
   checkValidateForm(e,'reportModal-details','reportModal-captcha')
 })
+
+function verifyCaptcha() {
+  console.log('verified');
+  document.querySelector('#g-recaptcha-error').innerHTML = '';
+}
+

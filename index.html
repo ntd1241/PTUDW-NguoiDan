@@ -374,8 +374,9 @@
             <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body d-flex justify-content-center">
-            <div class="g-recaptcha" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm"></div>
+          <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+            <div class="g-recaptcha" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm" data-callback="verifyCaptcha"></div>
+            <div id="captchaError"></div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-target="#reportModal-details" data-bs-toggle="modal">Quay trở lại</button>
