@@ -81,4 +81,7 @@ ClassicEditor.create(document.querySelector("#editor"))
     console.error(error);
   });
 
-
+function verifyCaptcha() {
+  console.log('verified');
+  document.querySelector('#g-recaptcha-error').innerHTML = '';
+}

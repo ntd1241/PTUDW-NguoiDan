@@ -1065,7 +1065,7 @@ map.on("click", async (e) => {
 });
 
 //Submit form handle
-const formValidation = (data) => {
+let formValidation = (data) => {
   if (!data.name || !data.email || !data.phone || !data.type || !data.content) {
     alert("Bạn chưa điền tất cả trường");
     return false;
@@ -1085,7 +1085,12 @@ const formValidation = (data) => {
     alert("Số điện thoại không hợp lệ");
     return false;
   }
-
+  const response = grecaptcha.getResponse();
+  if (response.length == 0) {
+    console.log('captcha failed');
+    document.querySelector('#captchaError').innerHTML = "<span style='color:red'>Vui lòng thực hiện captcha</span>"
+    return false;
+  }
   return true;
 };
 
