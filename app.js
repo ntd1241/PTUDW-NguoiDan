@@ -81,7 +81,28 @@ ClassicEditor.create(document.querySelector("#editor"))
     console.error(error);
   });
 
+
+const checkValidateForm = (e, first, sec) => {
+  e.preventDefault();
+  var thisModal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById(first)
+  );
+  thisModal.hide();
+  var nextModal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById(sec)
+  );
+  nextModal.show();
+};
+
+document.querySelector('#first-form').addEventListener('submit',(e)=>{
+  checkValidateForm(e,'reportModal-reporterInfo','reportModal-details')
+})
+document.querySelector('#second-form').addEventListener('submit',(e)=>{
+  checkValidateForm(e,'reportModal-details','reportModal-captcha')
+})
+
 function verifyCaptcha() {
   console.log('verified');
   document.querySelector('#g-recaptcha-error').innerHTML = '';
 }
+
