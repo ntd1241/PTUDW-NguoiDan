@@ -1030,7 +1030,6 @@ const searchBtn = document.querySelector("#search-button");
 
 searchBtn.addEventListener("click", searchFunc);
 locationInput.addEventListener("keypress", (e) => {
-  e.preventDefault();
   if (e.key == "Enter") {
     searchFunc(e);
   }
