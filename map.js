@@ -544,6 +544,8 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
     HTMLlocationType.innerHTML = "Chưa chọn điểm";
     HTMLlocationNoReports.innerText = "Chưa chọn điểm";
     HTMLlocationAddress.innerHTML = "Chưa chọn điểm";
+
+    prevReportTableState=3
   }
   //Check if the user change the selected target
   if (previousSelected.type != type) {
