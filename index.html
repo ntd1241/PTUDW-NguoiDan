@@ -179,7 +179,7 @@
                   </div>
                 </div>
                 <div class="col-auto d-flex flex-column justify-content-between">
-                  <button type="button" class="btn btn-outline-danger"  data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal" id="create-report">
+                  <button type="button" class="btn btn-outline-danger"  data-bs-target="#reportModal-reporterInfo" data-bs-toggle="modal" id="create-report" style="display: none;">
                     <i class="fa-solid fa-file-circle-plus"></i>
                     Tạo báo cáo mới</button>
                   <button type="button" class="btn btn-outline-secondary"  id="view-self-report">
@@ -291,27 +291,30 @@
           </div>
           <div class="modal-body">
             <h6 class="mb-3">Vui lòng nhập thông tin chi tiết của bạn!</h6>
-            <div class="mb-3">
-              <label for="form-reporter-name" class="form-label">Họ và tên</label>
-              <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                <input type="text" class="form-control is-invalid" id="form-reporter-name" placeholder="Họ và tên" required>
+            <form action="">
+              <div class="mb-3">
+                <label for="form-reporter-name" class="form-label">Họ và tên</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                  <input type="text" class="form-control is-invalid" id="form-reporter-name" placeholder="Họ và tên" required>
+                </div>
               </div>
-            </div>
-            <div class="mb-3">
-              <label for="form-reporter-phone" class="form-label">Số điện thoại</label>
-              <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-                <input type="text" class="form-control is-invalid" id="form-reporter-phone" placeholder="SĐT" required>
+              <div class="mb-3">
+                <label for="form-reporter-phone" class="form-label">Số điện thoại</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                  <input type="text" class="form-control is-invalid" id="form-reporter-phone" placeholder="SĐT" required>
+                </div>
               </div>
-            </div>
-            <div class="mb-3">
-              <label for="form-reporter-email" class="form-label">Địa chỉ Email</label>
-              <div class="input-group has-validation">
-                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                <input type="text" class="form-control is-invalid" id="form-reporter-email" placeholder="Email" required>
+              <div class="mb-3">
+                <label for="form-reporter-email" class="form-label">Địa chỉ Email</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                  <input type="text" class="form-control is-invalid" id="form-reporter-email" placeholder="Email" required>
+                </div>
               </div>
-            </div>
+            </form>
+
           </div>
           <div class="modal-footer">
             <button class="btn btn-primary" data-bs-target="#reportModal-details" data-bs-toggle="modal">Bước tiếp theo</button>

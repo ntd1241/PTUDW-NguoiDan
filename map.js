@@ -5,7 +5,7 @@ const reportedColor = "#eb3434";
 const selfReportedColor = "#848991";
 const unclusteredRadius = 12;
 let adsData;
-let prevReportTableState = 0;
+let prevReportTableState = 3;
 let selectedLocation = undefined;
 let selectedBoard = undefined;
 let isClickPoint = 0;
@@ -133,7 +133,6 @@ const getInfoOnclickUnclustered = async (e) => {
   const data = await fetchedData.json();
   adsData = JSON.parse(data);
 
-
   const HTMLid = document.querySelector("#board-id");
   const HTMLnumber = document.querySelector("#num-ads");
   const HTMLtitle = document.querySelector("#board-title");
@@ -254,7 +253,9 @@ const getInfoOnclickUnclustered = async (e) => {
           ? adsData[page - 1].status
           : "Chưa có quảng cáo"
       }</span></a>`;
-      HTMLaddr.innerHTML = `${adsData[page-1].AdsPlacement.address}, ${adsData[page-1].AdsPlacement.Area.ward}, ${adsData[page-1].AdsPlacement.Area.district}`;
+      HTMLaddr.innerHTML = `${adsData[page - 1].AdsPlacement.address}, ${
+        adsData[page - 1].AdsPlacement.Area.ward
+      }, ${adsData[page - 1].AdsPlacement.Area.district}`;
       HTMLsize.innerHTML = adsData[page - 1].size;
       HTMLqty.innerHTML = adsData[page - 1].quantity;
       HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
@@ -312,7 +313,9 @@ const getInfoOnclickUnclustered = async (e) => {
         ? adsData[page - 1].status
         : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = `${adsData[page-1].AdsPlacement.address}, ${adsData[page-1].AdsPlacement.Area.ward}, ${adsData[page-1].AdsPlacement.Area.district}`;
+    HTMLaddr.innerHTML = `${adsData[page - 1].AdsPlacement.address}, ${
+      adsData[page - 1].AdsPlacement.Area.ward
+    }, ${adsData[page - 1].AdsPlacement.Area.district}`;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
     HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
@@ -367,7 +370,9 @@ const getInfoOnclickUnclustered = async (e) => {
         ? adsData[page - 1].status
         : "Chưa có quảng cáo"
     }</span></a>`;
-    HTMLaddr.innerHTML = `${adsData[page-1].AdsPlacement.address}, ${adsData[page-1].AdsPlacement.Area.ward}, ${adsData[page-1].AdsPlacement.Area.district}`;
+    HTMLaddr.innerHTML = `${adsData[page - 1].AdsPlacement.address}, ${
+      adsData[page - 1].AdsPlacement.Area.ward
+    }, ${adsData[page - 1].AdsPlacement.Area.district}`;
     HTMLsize.innerHTML = adsData[page - 1].size;
     HTMLqty.innerHTML = adsData[page - 1].quantity;
     HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
@@ -442,13 +447,19 @@ const searchFunc = async (e) => {
   }
 };
 
+
+//Case 0: location
+//Case 1: board
+//Case 2: Self report
+//Case 3: dont have previous state
 const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   const createReport = document.querySelector("#create-report");
   const exitSelfReport = document.querySelector("#exit-self-report");
-  createReport.style.display = "inline-block";
+
   exitSelfReport.style.display = "none";
   let type = "";
   let respond;
+
   if (flag == 0) {
     type = "location";
     prevReportTableState = flag;
@@ -520,12 +531,14 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
     HTMLlocationId.innerText = selectedLocation.properties.id;
     HTMLlocationType.innerText = flag == 0 ? "Địa điểm" : "Bảng quảng cáo ";
     HTMLlocationNoReports.innerText = `${handled.length}/${reportData.length}`;
-    HTMLlocationAddress.innerText = selectedLocation.properties.address;
+    HTMLlocationAddress.innerText = selectedLocation.properties.address; 
+    createReport.style.display = "inline-block";
   } else if (flag == 2) {
     HTMLlocationId.innerText = "Đang hiển thị lịch sử báo cáo";
     HTMLlocationType.innerText = "Đang hiển thị lịch sử báo cáo";
     HTMLlocationNoReports.innerText = `${handled.length}/${reportData.length}`;
     HTMLlocationAddress.innerText = "Đang hiển thị lịch sử báo cáo";
+    // createReport.style.display = "inline-block";
   } else if (flag == 3) {
     HTMLlocationId.innerText = "Chưa chọn điểm";
     HTMLlocationType.innerHTML = "Chưa chọn điểm";
@@ -602,7 +615,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   }
 };
 
-const fetchDataFromServer=async()=>{
+const fetchDataFromServer = async () => {
   const fetchedsipulatedData = await fetch(
     `${serverPath}/citizen/get-sipulated`
   );
@@ -613,13 +626,13 @@ const fetchDataFromServer=async()=>{
   const sipulated = await fetchedsipulatedData.json();
   const nonSipulated = await fetchedNonSipulatedData.json();
   const reported = await fetchedReportData.json();
-  return {sipulated,nonSipulated,reported}
-}
+  return { sipulated, nonSipulated, reported };
+};
 //Layer generation
 map.on("load", async () => {
   geolocate.trigger();
   //Fetched section
-  const {sipulated,nonSipulated,reported}=await fetchDataFromServer()
+  const { sipulated, nonSipulated, reported } = await fetchDataFromServer();
   const selfReported = JSON.parse(localStorage.getItem("reportedLocation"));
 
   // Sipulated source data
@@ -1264,11 +1277,10 @@ formSubmit.addEventListener("click", async (e) => {
     });
   });
   //Re fetch data
-  const {sipulated,nonSipulated,reported}=await fetchDataFromServer()
-  map.getSource('sipulated').setData(JSON.parse(sipulated))
-  map.getSource('nonSipulated').setData(JSON.parse(nonSipulated))
-  map.getSource('reported').setData(JSON.parse(reported))
-  
+  const { sipulated, nonSipulated, reported } = await fetchDataFromServer();
+  map.getSource("sipulated").setData(JSON.parse(sipulated));
+  map.getSource("nonSipulated").setData(JSON.parse(nonSipulated));
+  map.getSource("reported").setData(JSON.parse(reported));
 });
 
 //Get table when click placement report
