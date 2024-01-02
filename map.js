@@ -180,8 +180,8 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLform.innerHTML = adsData[0].AdsPlacement.AdsType.type;
     HTMLclassification.innerHTML =
       adsData[0].AdsPlacement.LocationType.locationType;
-    // HTMLthumbnail.src = adsData[0].image;
-    HTMLthumbnail.src = `${serverPath}/images/permitRequests/${adsData[0].image}`;
+    HTMLthumbnail.src = `${serverPath}/${adsData[0].image}`;
+    // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${adsData[0].image}`;
     HTMLboardContract.setAttribute(
       "data-bs-content",
       `Ngày hết hạn: ${
@@ -261,10 +261,10 @@ const getInfoOnclickUnclustered = async (e) => {
       HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
       HTMLclassification.innerHTML =
         adsData[page - 1].AdsPlacement.LocationType.locationType;
-      // HTMLthumbnail.src = adsData[page - 1].image;
-      HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
-        adsData[page - 1].image
-      }`;
+      HTMLthumbnail.src = `${serverPath}/${adsData[page - 1].image}`;
+      // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
+      //   adsData[page - 1].image
+      // }`;
 
       HTMLboardContract.setAttribute(
         "data-bs-content",
@@ -321,10 +321,10 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
     HTMLclassification.innerHTML =
       adsData[page - 1].AdsPlacement.LocationType.locationType;
-    // HTMLthumbnail.src = adsData[page - 1].image;
-    HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
-      adsData[page - 1].image
-    }`;
+    HTMLthumbnail.src = `${serverPath}/${adsData[page - 1].image}`;
+    // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
+    //   adsData[page - 1].image
+    // }`;
 
     HTMLboardContract.setAttribute(
       "data-bs-content",
@@ -378,10 +378,10 @@ const getInfoOnclickUnclustered = async (e) => {
     HTMLform.innerHTML = adsData[page - 1].AdsPlacement.AdsType.type;
     HTMLclassification.innerHTML =
       adsData[page - 1].AdsPlacement.LocationType.locationType;
-    // HTMLthumbnail.src = adsData[page - 1].image;
-    HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
-      adsData[page - 1].image
-    }`;
+    HTMLthumbnail.src = `${serverPath}/${adsData[page - 1].image}`;
+    // HTMLthumbnail.src = `${serverPath}/images/permitRequests/${
+    //   adsData[page - 1].image
+    // }`;
     HTMLboardContract.setAttribute(
       "data-bs-content",
       `Ngày hết hạn: ${
@@ -1125,8 +1125,9 @@ let formValidation = (data) => {
   }
   const response = grecaptcha.getResponse();
   if (response.length == 0) {
-    console.log('captcha failed');
-    document.querySelector('#captchaError').innerHTML = "<span style='color:red'>Vui lòng thực hiện captcha</span>"
+    console.log("captcha failed");
+    document.querySelector("#captchaError").innerHTML =
+      "<span style='color:red'>Vui lòng thực hiện captcha</span>";
     return false;
   }
   return true;
