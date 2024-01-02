@@ -33,7 +33,7 @@ const serverPath = "http://localhost:5000";
 
 // Mapbox generation
 mapboxgl.accessToken =
-  "pk.eyJ1IjoicGpsZW9uYXJkMzciLCJhIjoic2YyV2luUSJ9.lPoix24JhyR8sljAwjHg9A";
+  "pk.eyJ1IjoiYm9vbnJlYWwiLCJhIjoiY2xvOWZ0eXQ2MDljNzJybXRvaW1oaXR3NyJ9.iu4mRTZ3mUFb7ggRtyPcWw";
 
 const map = new mapboxgl.Map({
   container: "mapbox", // container ID
