@@ -426,7 +426,9 @@ const toggleEvent = (e, targetLayer) => {
 
 const searchFunc = async (e) => {
   e.preventDefault();
-
+  if (locationInput.value == ""||locationInput.value==undefined) {
+    return;
+  }
   const apiKey = "8c7c7c956fdd4a598e2301d88cb48135";
   const query = locationInput.value;
   const apiUrl = "https://api.opencagedata.com/geocode/v1/json";
