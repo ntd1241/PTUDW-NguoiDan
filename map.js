@@ -426,7 +426,7 @@ const toggleEvent = (e, targetLayer) => {
 
 const searchFunc = async (e) => {
   e.preventDefault();
-  if (locationInput.value == ""||locationInput.value==undefined) {
+  if (locationInput.value == "" || locationInput.value == undefined) {
     return;
   }
   const apiKey = "8c7c7c956fdd4a598e2301d88cb48135";
@@ -442,6 +442,10 @@ const searchFunc = async (e) => {
       throw new Error("Network response was not ok");
     }
     const data = await respond.json();
+    if (data.results.length == 0) {
+      alert("Không tìm thấy địa chỉ tương ứng");
+      return;
+    }
     const geometry = data.results[0].geometry;
     map.flyTo({ center: geometry });
   } catch (err) {
