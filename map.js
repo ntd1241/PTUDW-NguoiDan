@@ -697,14 +697,18 @@ map.on("load", async () => {
     source: "sipulated",
     filter: ["!", ["has", "point_count"]],
     layout: {
-      "text-field": "QC",
+      "text-field": ["get", "numBoard"],
       "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
       "text-size": 12,
       "text-allow-overlap": true,
       visibility: "visible",
     },
     paint: {
-      "text-color": "#f2f7f4",
+      "text-color":[
+        "case",
+        [">",["to-number",["get","numBoard"]],0],"#f2f7f4",
+        "#181b21"
+      ],
     },
   });
   //Inspect a cluster on click
@@ -785,14 +789,19 @@ map.on("load", async () => {
     source: "nonSipulated",
     filter: ["!", ["has", "point_count"]],
     layout: {
-      "text-field": "QC",
+      "text-field": ["get", "numBoard"],
       "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
       "text-size": 12,
       "text-allow-overlap": true,
       visibility: "visible",
     },
     paint: {
-      "text-color": "#f2f7f4",
+      // "text-color": "#f2f7f4",
+      "text-color":[
+        "case",
+        [">",["to-number",["get","numBoard"]],0],"#f2f7f4",
+        "#181b21"
+      ]
     },
   });
   //Inspect a cluster on click
