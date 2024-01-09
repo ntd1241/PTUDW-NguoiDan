@@ -107,9 +107,15 @@
                     <h6 class="mt-2" id="location-name">Chưa có dữ liệu</h6>
                     <p id="location-address">Vui lòng chọn điểm trên bảng đồ để xem!</p>
                     <div class="d-flex justify-content-end">
+                      <button type="button" class="btn btn-outline-danger fw-semibold my-2" id="location-random-report" style="display: none;" data-bs-toggle="modal" data-bs-target="#reportModal-reporterInfo-random-location">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        BÁO CÁO VI PHẠM TRÊN ĐỊA CHỈ NÀY
+                      </button>
+                    </div>
+                    <div class="d-flex justify-content-end">
                       <button type="button" class="btn btn-outline-danger fw-semibold toBCVP" id="location-report" style="display: none;">
                         <i class="fa-solid fa-triangle-exclamation"></i>
-                        BÁO CÁO VI PHẠM
+                        BÁO CÁO VI PHẠM TRÊN ĐIỂM ĐẶT NÀY
                       </button>
                     </div>
                     <div class="mt-3 border-bottom"></div>
@@ -393,6 +399,133 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body" id="form-submit-result">
+            <h6 class="mb-3 text-success"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn đã được gửi và đang chờ xét duyệt!</h6>
+            Vui lòng kiểm tra hòm thư Email thường xuyên để nhận được kết quả.
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng cửa sổ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal for report random location -->
+    <div class="modal" id="reportModal-reporterInfo-random-location"  data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 1/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" id="first-form-random-location">
+            <h6 class="mb-3">Vui lòng nhập thông tin chi tiết của bạn!</h6>
+              <div class="mb-3">
+                <label for="form-reporter-name-random-location" class="form-label">Họ và tên</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                  <input type="text" class="form-control " id="form-reporter-name-random-location" placeholder="Họ và tên" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="form-reporter-phone-random-location" class="form-label">Số điện thoại</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                  <input type="text" class="form-control " id="form-reporter-phone-random-location" placeholder="SĐT" pattern="^((\+84|84|0)\d{9})$" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="form-reporter-email-random-location" class="form-label">Địa chỉ Email</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                  <input type="text" class="form-control " id="form-reporter-email-random-location" placeholder="Email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" required >
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+            type="submit"
+            class="btn btn-primary"
+            form="first-form-random-location"
+          >Bước tiếp theo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-details-random-location" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="" id="second-form-random-location">
+            <h6 class="mb-3">Vui lòng điền nội dung báo cáo!</h6>
+            <div class="mb-3">
+              <label for="form-report-type" class="form-label" >Địa chỉ báo cáo</label>
+              <input class="form-control" type="text" disabled id="form-address-random-location">
+            </div>
+            <input type="hidden" name="random-location-lng" id="form-lng-random-location">
+            <input type="hidden" name="random-location-lat" id="form-lat-random-location">
+            <div class="mb-3">
+              <label for="form-report-type-random-location" class="form-label">Hình thức báo cáo</label>
+              <select class="form-select " id="form-report-type-random-location" required>
+                <option selected disabled value="">Vui lòng chọn hình thức báo cáo!</option>
+                <option value="TGSP">Tố giác sai phạm</option>
+                <option value="DKND">Đăng ký nội dung</option>
+                <option value="DGYK">Đóng góp ý kiến</option>
+                <option value="GDTM">Giải đáp thắc mắc</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <div class="form-label">Nội dung báo cáo</div>
+              <div id="editor-random-location" >
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="form-report-images-random-location" class="form-label">Hình ảnh minh hoạ</label>
+              <input class="form-control" type="file" id="form-report-images-random-location" multiple name="img" accept="image/*">
+            </div>
+          </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#reportModal-reporterInfo-random-location" data-bs-toggle="modal">Quay trở lại</button>
+            <button
+            type="submit"
+            class="btn btn-primary"
+            form="second-form-random-location"
+          >Bước tiếp theo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-captcha-random-location" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Bước 2/2</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+            <div class="g-recaptcha" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm" data-callback="verifyCaptcha"></div>
+            <div id="captchaError"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-target="#reportModal-details-random-location" data-bs-toggle="modal">Quay trở lại</button>
+            <button class="btn btn-primary" data-bs-target="#reportModal-finish-random-location" data-bs-toggle="modal" id="report-submit-random-location">Hoàn tất</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="reportModal-finish-random-location" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-4">Tạo báo cáo <span class="text-muted fs-6">Hoàn tất</span></h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="form-submit-result-random-location">
             <h6 class="mb-3 text-success"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn đã được gửi và đang chờ xét duyệt!</h6>
             Vui lòng kiểm tra hòm thư Email thường xuyên để nhận được kết quả.
           </div>

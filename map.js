@@ -704,10 +704,11 @@ map.on("load", async () => {
       visibility: "visible",
     },
     paint: {
-      "text-color":[
+      "text-color": [
         "case",
-        [">",["to-number",["get","numBoard"]],0],"#f2f7f4",
-        "#181b21"
+        [">", ["to-number", ["get", "numBoard"]], 0],
+        "#f2f7f4",
+        "#181b21",
       ],
     },
   });
@@ -733,7 +734,6 @@ map.on("load", async () => {
   map.on("mouseleave", "sipulated-cluster", () => {
     map.getCanvas().style.cursor = "";
   });
-
   //Non sipulated section
   map.addSource("nonSipulated", {
     type: "geojson",
@@ -797,11 +797,12 @@ map.on("load", async () => {
     },
     paint: {
       // "text-color": "#f2f7f4",
-      "text-color":[
+      "text-color": [
         "case",
-        [">",["to-number",["get","numBoard"]],0],"#f2f7f4",
-        "#181b21"
-      ]
+        [">", ["to-number", ["get", "numBoard"]], 0],
+        "#f2f7f4",
+        "#181b21",
+      ],
     },
   });
   //Inspect a cluster on click
@@ -1076,10 +1077,17 @@ map.on("click", async (e) => {
     const HTMLlocationAddr = document.querySelector("#location-address");
     HTMLlocationName.innerHTML = locationName;
     HTMLlocationAddr.innerHTML = locationAddr;
+    // Change in report random location form
+    document.querySelector("#form-address-random-location").value =
+      locationName + ", " + locationAddr;
+    document.querySelector("#form-lng-random-location").value = lng;
+    document.querySelector("#form-lat-random-location").value = lat;
   } catch (err) {
     console.log(err);
   }
-
+  //Display report random location button
+  document.querySelector("#location-random-report").style.display =
+    "inline-block";
   //Reset Report section
   if (isClickPoint == 1) {
     isClickPoint = 0;
@@ -1247,25 +1255,6 @@ formSubmit.addEventListener("click", async (e) => {
   }
 
   //Report location handle
-  const isExist = selfReportedLocation.features.find((location) => {
-    return location.properties.address == selectedLocation.properties.address;
-  });
-  if (!isExist) {
-    selfReportedLocation.features.push({
-      type: "Feature",
-      properties: selectedLocation.properties,
-      geometry: {
-        coordinates: [selectedLocation.lngLat.lng, selectedLocation.lngLat.lat],
-        type: "Point",
-      },
-    });
-    map.getSource("selfReported").setData(selfReportedLocation);
-  }
-
-  localStorage.setItem(
-    "reportedLocation",
-    JSON.stringify(selfReportedLocation)
-  );
 
   formData.append("name", name);
   formData.append("email", email);
@@ -1280,7 +1269,29 @@ formSubmit.addEventListener("click", async (e) => {
     body: formData,
   });
   const respondJSON = await respond.json();
+  console.log(respondJSON);
 
+  const isExist = selfReportedLocation.features.find((location) => {
+    return location.properties.address == selectedLocation.properties.address;
+  });
+  if (!isExist) {
+    const area = JSON.parse(selectedLocation.properties.area);
+    const fullAddr = `${selectedLocation.properties.address}, ${area.ward}, ${area.district}`;
+    selfReportedLocation.features.push({
+      type: "Feature",
+      properties: { type: 1, address: fullAddr},
+      geometry: {
+        coordinates: [selectedLocation.lngLat.lng, selectedLocation.lngLat.lat],
+        type: "Point",
+      },
+    });
+    map.getSource("selfReported").setData(selfReportedLocation);
+  }
+
+  localStorage.setItem(
+    "reportedLocation",
+    JSON.stringify(selfReportedLocation)
+  );
   const newReport = respondJSON.newReport;
   const id = newReport.id;
 
@@ -1337,6 +1348,111 @@ formSubmit.addEventListener("click", async (e) => {
   }
 });
 
+//Form report random location event
+const formRandomBtn = document.querySelector("#report-submit-random-location");
+formRandomBtn.addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  //Reset form result
+  const formSubmitResult = document.querySelector(
+    "#form-submit-result-random-location"
+  );
+  formSubmitResult.innerHTML = `<h6 class="mb-3 text-success"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn đã được gửi và đang chờ xét duyệt!</h6>
+  Vui lòng kiểm tra hòm thư Email thường xuyên để nhận được kết quả.`;
+
+  const name = document.querySelector(
+    "#form-reporter-name-random-location"
+  ).value;
+  const email = document.querySelector(
+    "#form-reporter-email-random-location"
+  ).value;
+  const phone = document.querySelector(
+    "#form-reporter-phone-random-location"
+  ).value;
+
+  const type = document.querySelector(
+    "#form-report-type-random-location"
+  ).value;
+  const content = editorRandomLocation.getData();
+  const address = document.querySelector("#form-address-random-location").value;
+  const lng = document.querySelector("#form-lng-random-location").value;
+  const lat = document.querySelector("#form-lat-random-location").value;
+
+  const files = document.querySelector(
+    "#form-report-images-random-location"
+  ).files;
+  const formData = new FormData();
+  for (let i = 0; i < files.length; i++) {
+    formData.append("files", files[i]);
+  }
+
+  let selfReportedLocation = localStorage.getItem("reportedLocation");
+  if (selfReportedLocation == undefined) {
+    selfReportedLocation = {
+      type: "FeatureCollection",
+      features: [],
+    };
+  } else {
+    selfReportedLocation = JSON.parse(selfReportedLocation);
+  }
+
+  let selfReportRandomData = localStorage.getItem("reportedRandomData");
+  if (selfReportRandomData == undefined || selfReportRandomData == null) {
+    selfReportRandomData = [];
+  } else {
+    selfReportRandomData = JSON.parse(selfReportRandomData);
+  }
+
+  formData.append("name", name);
+  formData.append("email", email);
+  formData.append("phone", phone);
+  formData.append("type", type);
+  formData.append("content", content);
+  formData.append("address", address);
+  formData.append("lng", lng);
+  formData.append("lat", lat);
+
+  const respond = await fetch(
+    `${serverPath}/citizen/post-report-random-location`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+  const respondJSON = await respond.json();
+  console.log(respondJSON);
+  const returnData = respondJSON.newReport;
+  console.log(returnData)
+  const isExists = selfReportedLocation.features.find((location) => {
+    return (
+      location.geometry.coordinates[0] == returnData.long &&
+      location.geometry.coordinates[1] == returnData.lat
+    );
+  });
+  if (!isExists) {
+    
+    selfReportedLocation.features.push({
+      type: "Feature",
+      properties: { type: 2, address:returnData.address },
+      geometry: {
+        coordinates: [returnData.lat, returnData.long],
+        type: "Point",
+      },
+    });
+    map.getSource("selfReported").setData(selfReportedLocation);
+  }
+  localStorage.setItem(
+    "reportedLocation",
+    JSON.stringify(selfReportedLocation)
+  );
+
+  selfReportRandomData.push(returnData.id);
+  localStorage.setItem(
+    "reportedRandomData",
+    JSON.stringify(selfReportRandomData)
+  );
+});
+
 //Get table when click placement report
 const reportLocationButton = document.querySelector("#location-report");
 reportLocationButton.addEventListener("click", async (e) => {
@@ -1381,3 +1497,4 @@ reportTab.addEventListener("click", (e) => {
     getReportTable(e, 3);
   }
 });
+
