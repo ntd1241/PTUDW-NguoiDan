@@ -653,7 +653,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
         item.ReportType.type,
         item.createdAt.split("T")[0],
         item.status,
-        '<a href="#" class="view-detail" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
+        '<a href="#" class="view-detail" rel="noopener noreferrer" onclick="viewDetailButtonEvent(event)"><img src="./img/file.png" alt="" style="height:30px"></a>',
       ];
       increaseId += 1;
       const newRow = $("<tr>").attr("data-report", JSON.stringify(item));
@@ -665,7 +665,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
 
     dataTable.draw();
 
-    //Re create click event
+    // Re create click event
     const viewButtons = document.querySelectorAll("td a");
     if (viewButtons) {
       viewButtons.forEach((item) => {
@@ -1401,10 +1401,10 @@ let formValidation = (data) => {
   return true;
 };
 
-const viewDetailButtonEvent = (e) => {
-  e.preventDefault();
+const viewDetailButtonEvent = (event) => {
+  event.preventDefault();
 
-  const clickedRow = e.target.closest("tr");
+  const clickedRow = event.target.closest("tr");
 
   if (clickedRow) {
     const reportData = JSON.parse(clickedRow.dataset.report);
@@ -1572,7 +1572,7 @@ formSubmit.addEventListener("click", async (e) => {
       formattedType,
       newReport.createdAt.split("T")[0],
       newReport.status,
-      '<a href="#" class="view-detail" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
+      '<a href="#" class="view-detail" rel="noopener noreferrer" onclick="viewDetailButtonEvent(event)"><img src="./img/file.png" alt="" style="height:30px"></a>',
     ];
     const newRow = $("<tr>").attr("data-report", JSON.stringify(newReport));
     rowDataArr.forEach((data) => {
