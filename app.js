@@ -81,6 +81,14 @@ ClassicEditor.create(document.querySelector("#editor"))
     console.error(error);
   });
 
+let editorRandomLocation;
+ClassicEditor.create(document.querySelector("#editor-random-location"))
+  .then((neweditor) => {
+    editorRandomLocation = neweditor;
+  })
+  .catch((error) => {
+    console.error(error);
+  });
 
 const checkValidateForm = (e, first, sec) => {
   e.preventDefault();
@@ -99,6 +107,12 @@ document.querySelector('#first-form').addEventListener('submit',(e)=>{
 })
 document.querySelector('#second-form').addEventListener('submit',(e)=>{
   checkValidateForm(e,'reportModal-details','reportModal-captcha')
+})
+document.querySelector('#first-form-random-location').addEventListener('submit',(e)=>{
+  checkValidateForm(e,'reportModal-reporterInfo-random-location','reportModal-details-random-location')
+})
+document.querySelector('#second-form-random-location').addEventListener('submit',(e)=>{
+  checkValidateForm(e,'reportModal-details-random-location','reportModal-captcha-random-location')
 })
 
 function verifyCaptcha() {
