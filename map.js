@@ -5,6 +5,7 @@ const reportedColor = "#eb3434";
 const selfReportedColor = "#848991";
 const unclusteredRadius = 12;
 let adsData;
+let rpData;
 let prevReportTableState = 3;
 let selectedLocation = undefined;
 let selectedBoard = undefined;
@@ -200,9 +201,9 @@ const getInfoOnclickUnclustered = async (e) => {
     <a class="page-link" href="#" aria-label="Previous">
       <span aria-hidden="true">&laquo;</span></a></li>`;
   for (let i = 0; i < adsData.length; i++) {
-    if (i == 3) {
-      break;
-    }
+    // if (i == 3) {
+    //   break;
+    // }
     if (i == 0) {
       paginationData += `<li class="page-item active" aria-current="page"><a class="page-link" href="#">${
         i + 1
@@ -414,6 +415,48 @@ const toggleEvent = (e, targetLayer) => {
   ];
 
   if (e.target.checked) {
+    //Update side section
+    document.querySelector("#side-section").innerHTML = `
+  <div class="card-body" id="side-section">
+    <span class="text-muted">#ID: <span class="fw-semibold" id="board-id">Chưa có thông tin</span></span>
+      <h4 class="card-title" id="board-title">
+        Trụ, cụm pano
+        <span class="ms-2 badge bg-success" id="board-status"></span>
+      </h4>
+      <p class="card-text" id="board-address">Chưa có thông tin để hiển thị</p>
+
+      <p>
+          Kích thước: <span class="details-info" id="board-size">Chưa có thông tin</span> <br>
+          Số lượng: <span class="details-info" id="board-quantity">Chưa có thông tin</span> <br>
+          Hình thức: <span class="details-info" id="board-form">Chưa có thông tin</span> <br>
+          Phân loại: <span class="details-info" id="board-classification">Chưa có thông tin</span> <br>
+      </p>
+      <img class="img-thumbnail mb-3" src="" id="board-thumbnail" alt="" style="width: 100%;">
+      <div class="d-flex justify-content-between">
+          <span id="board-contract" class="btn-icon fs-3" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-title="Hợp đồng quảng cáo" data-bs-container="body" data-bs-placement="left" data-bs-content="Ngày hết hạn: 01-01-2003">
+              <i class="fa-solid fa-circle-exclamation text-primary"></i>
+          </span>
+          <button type="button" class="btn btn-outline-danger fw-semibold toBCVP" id="board-report" style="display: none;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              BÁO CÁO VI PHẠM
+          </button>
+    </div>`;
+    document.querySelectorAll(".toBCVP").forEach((item) => {
+      item.addEventListener("click", () => {
+        var triggerEl = document.querySelector("#myTab #report-tab");
+        bootstrap.Tab.getOrCreateInstance(triggerEl).show();
+      });
+    });
+    const layersReported = [
+      "reported-cluster",
+      "reported-count",
+      "reported-unclustered",
+      "reported-label",
+    ];
+    document.querySelector("#forthCheckboxStretched").checked = false;
+    layersReported.forEach((layer) => {
+      map.setLayoutProperty(layer, "visibility", "none");
+    });
     layers.forEach((layer) => {
       map.setLayoutProperty(layer, "visibility", "visible");
     });
@@ -496,14 +539,29 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
     createReport.style.display = "none";
     exitSelfReport.style.display = "inline-block";
     let selfReportedData = localStorage.getItem("reportedData");
-    if (selfReportedData != null) {
-      selfReportedData = JSON.parse(selfReportedData);
+    let selfReportedRandomData = localStorage.getItem("reportedRandomData");
+
+    if (selfReportedData != null || selfReportedRandomData != null) {
+      if (selfReportedData == null) {
+        selfReportedData = [];
+      } else {
+        selfReportedData = JSON.parse(selfReportedData);
+      }
+
+      if (selfReportedRandomData == null) {
+        selfReportedRandomData = [];
+      } else {
+        selfReportedRandomData = JSON.parse(selfReportedRandomData);
+      }
       respond = await fetch(`${serverPath}/citizen/post-self-report`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ reportIds: selfReportedData }),
+        body: JSON.stringify({
+          reportIdsType1: selfReportedData,
+          reportIdsType2: selfReportedRandomData,
+        }),
       });
     } else {
       alert("No reports to be reported");
@@ -513,7 +571,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   let data;
   if (
     flag == 3 ||
-    (flag == 2 && localStorage.getItem("reportedData") == null)
+    (flag == 2 && localStorage.getItem("reportedData") == null&&selfReportedRandomData != null)
   ) {
     data = JSON.stringify([]);
   } else {
@@ -521,6 +579,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   }
 
   const reportData = JSON.parse(data);
+  console.log(reportData)
 
   const handled = reportData.filter((item) => {
     return item.status == "Đã xử lý";
@@ -586,16 +645,17 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
     var dataTable = $("#myTable").DataTable();
 
     dataTable.clear().draw();
-
+    let increaseId = 1;
     reportData.forEach(function (item) {
       const rowDataArr = [
-        item.id,
+        increaseId,
         item.name,
         item.ReportType.type,
         item.createdAt.split("T")[0],
         item.status,
         '<a href="#" class="view-detail" rel="noopener noreferrer"><img src="./img/file.png" alt="" style="height:30px"></a>',
       ];
+      increaseId += 1;
       const newRow = $("<tr>").attr("data-report", JSON.stringify(item));
       rowDataArr.forEach(function (data) {
         newRow.append("<td>" + data + "</td>");
@@ -629,17 +689,17 @@ const fetchDataFromServer = async () => {
   const fetchedNonSipulatedData = await fetch(
     `${serverPath}/citizen/get-nonsipulated`
   );
-  const fetchedReportData = await fetch(`${serverPath}/citizen/get-report`);
+
   const sipulated = await fetchedsipulatedData.json();
   const nonSipulated = await fetchedNonSipulatedData.json();
-  const reported = await fetchedReportData.json();
-  return { sipulated, nonSipulated, reported };
+
+  return { sipulated, nonSipulated };
 };
 //Layer generation
 map.on("load", async () => {
   geolocate.trigger();
   //Fetched section
-  const { sipulated, nonSipulated, reported } = await fetchDataFromServer();
+  const { sipulated, nonSipulated } = await fetchDataFromServer();
   const selfReported = JSON.parse(localStorage.getItem("reportedLocation"));
 
   // Sipulated source data
@@ -830,7 +890,7 @@ map.on("load", async () => {
   //Reported section
   map.addSource("reported", {
     type: "geojson",
-    data: JSON.parse(reported),
+    data: selfReported,
     cluster: true,
     clusterMaxZoom: 17,
     clusterRadius: 20,
@@ -845,7 +905,7 @@ map.on("load", async () => {
       "circle-color": reportedColor,
       "circle-radius": ["step", ["get", "point_count"], 15, 4, 30, 8, 45],
     },
-    layout: { visibility: "visible" },
+    layout: { visibility: "none" },
   });
   //Reported count
   map.addLayer({
@@ -858,7 +918,7 @@ map.on("load", async () => {
       "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
       "text-size": 12,
       "text-allow-overlap": true,
-      visibility: "visible",
+      visibility: "none",
     },
   });
   //Reported uncluster
@@ -867,7 +927,7 @@ map.on("load", async () => {
     type: "circle",
     source: "reported",
     filter: ["!", ["has", "point_count"]],
-    layout: { visibility: "visible" },
+    layout: { visibility: "none" },
     paint: {
       "circle-color": reportedColor,
       "circle-radius": unclusteredRadius,
@@ -882,11 +942,11 @@ map.on("load", async () => {
     source: "reported",
     filter: ["!", ["has", "point_count"]],
     layout: {
-      "text-field": "QC",
+      "text-field": "VP",
       "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
       "text-size": 12,
       "text-allow-overlap": true,
-      visibility: "visible",
+      visibility: "none",
     },
     paint: {
       "text-color": "#f2f7f4",
@@ -898,14 +958,259 @@ map.on("load", async () => {
   });
 
   map.on("mouseenter", "reported-unclustered", (e) => {
-    mouseEnterEventUnclustered(e, "reported");
+    map.getCanvas().style.cursor = "pointer";
+    const coordinates = e.features[0].geometry.coordinates.slice();
+    const { address, type } = e.features[0].properties;
+
+    while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+      coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+    }
+
+    const popupDesc = `<b>${address}</b>`;
+    reportedPopup.setLngLat(coordinates).setHTML(popupDesc).addTo(map);
   });
   map.on("mouseleave", "reported-unclustered", () => {
-    mouseLeaveEventUnclustered("reported");
+    map.getCanvas().style.cursor = "";
+    reportedPopup.remove();
   });
   // Get info on click
   map.on("click", "reported-unclustered", async (e) => {
-    await getInfoOnclickUnclustered(e);
+    document.querySelector("#report-view-detail").style.display =
+      "inline-block";
+    isClickPoint = 1;
+    const tempData = e.features[0];
+    const { type, lng, lat } = e.features[0].properties;
+    let reportIdArr;
+    if (type == 1) {
+      reportIdArr = JSON.parse(localStorage.getItem("reportedData"));
+    } else if (type == 2) {
+      reportIdArr = JSON.parse(localStorage.getItem("reportedRandomData"));
+    }
+    const fetchData = await fetch(
+      `${serverPath}/citizen/get-report-by-lnglat?type=${type}&lng=${lng}&lat=${lat}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reportIds: reportIdArr }),
+      }
+    );
+    const data = await fetchData.json();
+    rpData = JSON.parse(data);
+    console.log(rpData);
+
+    const HTMLReportType = document.querySelector("#report-type");
+    const HTMLReportName = document.querySelector("#reporter-name");
+    const HTMLReportDate = document.querySelector("#report-date");
+    const HTMLReportStatus = document.querySelector("#report-status");
+    const HTMLReportLocation = document.querySelector("#report-location");
+
+    const HTMLModalContent = document.querySelector("#report-detail-content");
+    const HTMLModalImg1 = document.querySelector("#report-detail-first-img");
+    const HTMLModalImg2 = document.querySelector("#report-detail-second-img");
+    const HTMLModalMethod = document.querySelector("#report-detail-method");
+
+    if (rpData.length == 0) {
+      HTMLReportType.innerHTML = "Chưa có thông tin";
+      HTMLReportName.innerHTML = "Chưa có thông tin";
+      HTMLReportDate.innerHTML = "Chưa có thông tin";
+      HTMLReportStatus.innerHTML = "Chưa có thông tin";
+      HTMLReportLocation.innerHTML = "Chưa có thông tin";
+    } else {
+      HTMLReportType.innerHTML = rpData[0].ReportType.type;
+      HTMLReportName.innerHTML = rpData[0].name;
+      HTMLReportDate.innerHTML = rpData[0].createdAt.split("T")[0];
+      HTMLReportStatus.innerHTML = rpData[0].status;
+      HTMLReportLocation.innerHTML = tempData.properties.address;
+
+      const images =
+        rpData[0].image != null ? rpData[0].image.split(", ") : undefined;
+      HTMLModalContent.innerHTML = rpData[0].reportContent;
+      if (images == undefined) {
+        HTMLModalImg1.src = "";
+        HTMLModalImg2.src = "";
+      } else if (images.length == 1) {
+        HTMLModalImg1.src = `${serverPath}/` + images[0];
+        HTMLModalImg2.src = "";
+      } else {
+        HTMLModalImg1.src = `${serverPath}/` + images[0];
+        HTMLModalImg2.src = `${serverPath}/` + images[1];
+      }
+      HTMLModalMethod.value =
+        rpData[0].method == null ? "Chưa được cán bộ xử lý" : rpData[0].method;
+    }
+    //Update pagination
+    let paginationData = "";
+    paginationData += `<li class="page-item disabled">
+    <a class="page-link" href="#" aria-label="Previous">
+      <span aria-hidden="true">&laquo;</span></a></li>`;
+    for (let i = 0; i < rpData.length; i++) {
+      if (i == 0) {
+        paginationData += `<li class="page-item active" aria-current="page"><a class="page-link" href="#">${
+          i + 1
+        }</a></li>`;
+      } else {
+        paginationData += `<li class="page-item" aria-current="page"><a class="page-link" href="#">${
+          i + 1
+        }</a></li>`;
+      }
+    }
+    if (rpData.length <= 1) {
+      paginationData += `<li class="page-item disabled">
+        <a class="page-link" href="#" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span></a></li>`;
+    } else {
+      paginationData += `<li class="page-item "><a class="page-link" href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span></a></li>`;
+    }
+    document.querySelector("#board-pagination").innerHTML = paginationData;
+
+    //Pagination feature
+    const pagePrev = document.querySelector(
+      '.page-link[aria-label="Previous"]'
+    );
+    const pageNext = document.querySelector('.page-link[aria-label="Next"]');
+    const pageItems = document.querySelectorAll(
+      '.page-item[aria-current="page"]'
+    );
+
+    pageItems.forEach((item) => {
+      item.addEventListener("click", (e) => {
+        e.preventDefault();
+        //Deactive previous
+        const activeItem = document.querySelector(".page-item.active");
+        activeItem.classList.remove("active");
+
+        const page = e.target.innerText;
+        HTMLReportType.innerHTML = rpData[page - 1].ReportType.type;
+        HTMLReportName.innerHTML = rpData[page - 1].name;
+        HTMLReportDate.innerHTML =
+          rpData[page - 1].createdAt.split("T")[page - 1];
+        HTMLReportStatus.innerHTML = rpData[page - 1].status;
+        HTMLReportLocation.innerHTML = tempData.properties.address;
+
+        const images =
+          rpData[page - 1].image != null
+            ? rpData[page - 1].image.split(", ")
+            : undefined;
+        HTMLModalContent.innerHTML = rpData[page - 1].reportContent;
+        if (images == undefined) {
+          HTMLModalImg1.src = "";
+          HTMLModalImg2.src = "";
+        } else if (images.length == 1) {
+          HTMLModalImg1.src = `${serverPath}/` + images[0];
+          HTMLModalImg2.src = "";
+        } else {
+          HTMLModalImg1.src = `${serverPath}/` + images[0];
+          HTMLModalImg2.src = `${serverPath}/` + images[1];
+        }
+        HTMLModalMethod.value =
+          rpData[page - 1].method == null
+            ? "Chưa được cán bộ xử lý"
+            : rpData[page - 1].method;
+        //Set active
+        e.target.parentNode.classList.add("active");
+        //Set enable/disable for prev/next button
+        pagePrev.parentNode.classList.remove("disabled");
+        pageNext.parentNode.classList.remove("disabled");
+        if (page == 1) {
+          pagePrev.parentNode.classList.add("disabled");
+        } else if (page == rpData.length) {
+          pageNext.parentNode.classList.add("disabled");
+        }
+      });
+    });
+
+    pagePrev.addEventListener("click", (e) => {
+      if (pagePrev.parentNode.classList.contains("disabled")) {
+        return;
+      }
+      const activeItem = document.querySelector(".page-item.active");
+      activeItem.classList.remove("active");
+
+      const page = parseInt(activeItem.firstChild.innerText) - 1;
+
+      HTMLReportType.innerHTML = rpData[page - 1].ReportType.type;
+      HTMLReportName.innerHTML = rpData[page - 1].name;
+      HTMLReportDate.innerHTML =
+        rpData[page - 1].createdAt.split("T")[page - 1];
+      HTMLReportStatus.innerHTML = rpData[page - 1].status;
+      HTMLReportLocation.innerHTML = tempData.properties.address;
+
+      const images =
+        rpData[page - 1].image != null
+          ? rpData[page - 1].image.split(", ")
+          : undefined;
+      HTMLModalContent.innerHTML = rpData[page - 1].reportContent;
+      if (images == undefined) {
+        HTMLModalImg1.src = "";
+        HTMLModalImg2.src = "";
+      } else if (images.length == 1) {
+        HTMLModalImg1.src = `${serverPath}/` + images[0];
+        HTMLModalImg2.src = "";
+      } else {
+        HTMLModalImg1.src = `${serverPath}/` + images[0];
+        HTMLModalImg2.src = `${serverPath}/` + images[1];
+      }
+      HTMLModalMethod.value =
+        rpData[page - 1].method == null
+          ? "Chưa được cán bộ xử lý"
+          : rpData[page - 1].method;
+      //Set active
+      activeItem.previousSibling.classList.add("active");
+      //Deactive prev button if reach the first page
+      pageNext.parentNode.classList.remove("disabled");
+      pagePrev.parentNode.classList.remove("disabled");
+      if (page == 1) {
+        pagePrev.parentNode.classList.add("disabled");
+      }
+    });
+    pageNext.addEventListener("click", (e) => {
+      if (pageNext.parentNode.classList.contains("disabled")) {
+        return;
+      }
+      const activeItem = document.querySelector(".page-item.active");
+      activeItem.classList.remove("active");
+
+      const page = parseInt(activeItem.firstChild.innerText) + 1;
+      HTMLReportType.innerHTML = rpData[page - 1].ReportType.type;
+      HTMLReportName.innerHTML = rpData[page - 1].name;
+      HTMLReportDate.innerHTML =
+        rpData[page - 1].createdAt.split("T")[page - 1];
+      HTMLReportStatus.innerHTML = rpData[page - 1].status;
+      HTMLReportLocation.innerHTML = tempData.properties.address;
+
+      const images =
+        rpData[page - 1].image != null
+          ? rpData[page - 1].image.split(", ")
+          : undefined;
+      HTMLModalContent.innerHTML = rpData[page - 1].reportContent;
+      if (images == undefined) {
+        HTMLModalImg1.src = "";
+        HTMLModalImg2.src = "";
+      } else if (images.length == 1) {
+        HTMLModalImg1.src = `${serverPath}/` + images[0];
+        HTMLModalImg2.src = "";
+      } else {
+        HTMLModalImg1.src = `${serverPath}/` + images[0];
+        HTMLModalImg2.src = `${serverPath}/` + images[1];
+      }
+      HTMLModalMethod.value =
+        rpData[page - 1].method == null
+          ? "Chưa được cán bộ xử lý"
+          : rpData[page - 1].method;
+      //Set active
+      activeItem.nextSibling.classList.add("active");
+      //Deactive next button if reach the last page
+      pageNext.parentNode.classList.remove("disabled");
+
+      pagePrev.parentNode.classList.remove("disabled");
+
+      if (page == rpData.length) {
+        pageNext.parentNode.classList.add("disabled");
+      }
+    });
   });
   map.on("mouseenter", "reported-cluster", () => {
     map.getCanvas().style.cursor = "pointer";
@@ -913,130 +1218,57 @@ map.on("load", async () => {
   map.on("mouseleave", "reported-cluster", () => {
     map.getCanvas().style.cursor = "";
   });
-
-  //Self report section
-  map.addSource("selfReported", {
-    type: "geojson",
-    data: selfReported,
-    cluster: true,
-    clusterMaxZoom: 17,
-    clusterRadius: 20,
-  });
-  map.addLayer({
-    id: "selfReported-cluster",
-    type: "circle",
-    source: "selfReported",
-    filter: ["has", "point_count"],
-    paint: {
-      "circle-color": selfReportedColor,
-      "circle-radius": ["step", ["get", "point_count"], 30, 4, 60, 8, 90],
-    },
-    layout: { visibility: "none" },
-  });
-  //self reported count
-  map.addLayer({
-    id: "selfReported-count",
-    type: "symbol",
-    source: "selfReported",
-    filter: ["has", "point_count"],
-    layout: {
-      "text-field": "{point_count_abbreviated}",
-      "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-      "text-size": 12,
-      "text-allow-overlap": true,
-      visibility: "none",
-    },
-  });
-  //self reported uncluster
-  map.addLayer({
-    id: "selfReported-unclustered",
-    type: "circle",
-    source: "selfReported",
-    filter: ["!", ["has", "point_count"]],
-    layout: { visibility: "none" },
-    paint: {
-      "circle-color": selfReportedColor,
-      "circle-radius": unclusteredRadius,
-      "circle-stroke-width": 1,
-      "circle-stroke-color": "#fff",
-    },
-  });
-  //self reported label
-  map.addLayer({
-    id: "selfReported-label",
-    type: "symbol",
-    source: "selfReported",
-    filter: ["!", ["has", "point_count"]],
-    layout: {
-      "text-field": "QC",
-      "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-      "text-size": 12,
-      "text-allow-overlap": true,
-      visibility: "none",
-    },
-    paint: {
-      "text-color": "#f2f7f4",
-    },
-  });
-  //Inspect a cluster on click
-  map.on("click", "selfReported-cluster", (e) => {
-    inspectCluster(e, "selfReported");
-  });
-
-  map.on("mouseenter", "selfReported-unclustered", (e) => {
-    mouseEnterEventUnclustered(e, "selfReported");
-  });
-  map.on("mouseleave", "selfReported-unclustered", () => {
-    mouseLeaveEventUnclustered("selfReported");
-  });
-  // Get info on click
-  map.on("click", "selfReported-unclustered", async (e) => {
-    await getInfoOnclickUnclustered(e);
-  });
-  map.on("mouseenter", "selfReported-cluster", () => {
-    map.getCanvas().style.cursor = "pointer";
-  });
-  map.on("mouseleave", "selfReported-cluster", () => {
-    map.getCanvas().style.cursor = "";
-  });
 });
 
 //Toggle layers
 const sipulatedToggle = document.querySelector("#firstCheckboxStretched");
 const nonSipulatedToggle = document.querySelector("#secondCheckboxStretched");
-const reportedToggle = document.querySelector("#thirdCheckboxStretched");
-const selfReportedToggle = document.querySelector("#forthCheckboxStretched");
+const reportedToggle = document.querySelector("#forthCheckboxStretched");
 
 sipulatedToggle.addEventListener("change", (e) => toggleEvent(e, "sipulated"));
 nonSipulatedToggle.addEventListener("change", (e) =>
   toggleEvent(e, "nonSipulated")
 );
-reportedToggle.addEventListener("change", (e) => toggleEvent(e, "reported"));
-selfReportedToggle.addEventListener("change", (e) => {
+
+reportedToggle.addEventListener("change", (e) => {
   const layers = [
-    "selfReported-cluster",
-    "selfReported-count",
-    "selfReported-unclustered",
-    "selfReported-label",
+    "reported-cluster",
+    "reported-count",
+    "reported-unclustered",
+    "reported-label",
   ];
-  if (selfReportedToggle.checked) {
+  if (reportedToggle.checked) {
+    //Change side section
+    document.querySelector("#side-section").innerHTML = `
+  <h4 class="card-title" id="report-type">
+    Tố giác sai phạm
+    <span class="ms-2 badge bg-success" id="board-status"></span>
+  </h4>
+  <p>
+    Người gửi: <span class="details-info" id="reporter-name">Chưa có thông tin</span> <br>
+    Ngày gửi: <span class="details-info" id="report-date">Chưa có thông tin</span> <br>
+    Trạng thái xử lý: <span class="details-info" id="report-status">Chưa có thông tin</span> <br>
+    Địa chỉ: <span class="details-info" id="report-location">Chưa có thông tin</span> <br>
+  </p>
+  <button type="button" class="btn btn-outline-success fw-semibold " id="report-view-detail" style="display: none;" data-bs-toggle="modal" data-bs-target="#report-detail-modal">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    XEM CHI TIẾT
+  </button>
+    `;
     sipulatedToggle.checked = false;
     nonSipulatedToggle.checked = false;
-    reportedToggle.checked = false;
     layers.forEach((layer) => {
       map.setLayoutProperty(layer, "visibility", "visible");
     });
   } else {
     sipulatedToggle.checked = true;
     nonSipulatedToggle.checked = true;
-    reportedToggle.checked = true;
     layers.forEach((layer) => {
       map.setLayoutProperty(layer, "visibility", "none");
     });
   }
   sipulatedToggle.dispatchEvent(new Event("change"));
   nonSipulatedToggle.dispatchEvent(new Event("change"));
-  reportedToggle.dispatchEvent(new Event("change"));
 });
 
 // Reverse geo-location
@@ -1053,6 +1285,54 @@ locationInput.addEventListener("keypress", (e) => {
 //Foward geo-location
 const fowardMaker = new mapboxgl.Marker({ color: "red" });
 map.on("click", async (e) => {
+  //Reset Report section
+  if (isClickPoint == 1) {
+    isClickPoint = 0;
+  } else if (
+    isClickPoint == 0 &&
+    document.querySelector("#forthCheckboxStretched").checked == false
+  ) {
+    document.querySelector("#location-report").style.display = "none";
+    document.querySelector("#board-report").style.display = "none";
+    const HTMLid = document.querySelector("#board-id");
+    const HTMLnumber = document.querySelector("#num-ads");
+    const HTMLtitle = document.querySelector("#board-title");
+    const HTMLaddr = document.querySelector("#board-address");
+    const HTMLsize = document.querySelector("#board-size");
+    const HTMLqty = document.querySelector("#board-quantity");
+    const HTMLform = document.querySelector("#board-form");
+    const HTMLclassification = document.querySelector("#board-classification");
+    const HTMLthumbnail = document.querySelector("#board-thumbnail");
+    const HTMLpagination = document.querySelector("#board-pagination");
+    const HTMLboardContract = document.querySelector("#board-contract");
+
+    HTMLid.innerHTML = "Chưa có thông tin";
+    HTMLnumber.innerHTML = `<p>Địa điểm này có 0 quảng cáo</p>`;
+    HTMLtitle.innerHTML = `Chưa có thông tin <span class="ms-2 badge bg-secondary" id="board-status">Chưa có thông tin</span></a>`;
+    HTMLaddr.innerHTML = `Chưa có thông tin để hiển thị`;
+    HTMLsize.innerHTML = "Chưa có thông tin";
+    HTMLqty.innerHTML = "Chưa có thông tin";
+    HTMLform.innerHTML = "Chưa có thông tin";
+    HTMLclassification.innerHTML = "Chưa có thông tin";
+    HTMLthumbnail.src = "";
+    HTMLboardContract.setAttribute("data-bs-content", ``);
+    const popover = new bootstrap.Popover(HTMLboardContract);
+    popover.update();
+
+    selectedBoard = undefined;
+    selectedLocation = undefined;
+    getReportTable(e, 3, true);
+  } else if (
+    isClickPoint == 0 &&
+    document.querySelector("#forthCheckboxStretched").checked == true
+  ) {
+    document.querySelector("#report-view-detail").style.display = "none";
+    document.querySelector("#report-type").innerText = "Chưa có thông tin";
+    document.querySelector("#reporter-name").innerText = "Chưa có thông tin";
+    document.querySelector("#report-date").innerText = "Chưa có thông tin";
+    document.querySelector("#report-status").innerText = "Chưa có thông tin";
+    document.querySelector("#report-location").innerText = "Chưa có thông tin";
+  }
   const { lat, lng } = e.lngLat;
   fowardMaker.setLngLat([lng, lat]).addTo(map);
   const query = `${lat}+${lng}`;
@@ -1088,41 +1368,6 @@ map.on("click", async (e) => {
   //Display report random location button
   document.querySelector("#location-random-report").style.display =
     "inline-block";
-  //Reset Report section
-  if (isClickPoint == 1) {
-    isClickPoint = 0;
-  } else {
-    document.querySelector("#location-report").style.display = "none";
-    document.querySelector("#board-report").style.display = "none";
-    const HTMLid = document.querySelector("#board-id");
-    const HTMLnumber = document.querySelector("#num-ads");
-    const HTMLtitle = document.querySelector("#board-title");
-    const HTMLaddr = document.querySelector("#board-address");
-    const HTMLsize = document.querySelector("#board-size");
-    const HTMLqty = document.querySelector("#board-quantity");
-    const HTMLform = document.querySelector("#board-form");
-    const HTMLclassification = document.querySelector("#board-classification");
-    const HTMLthumbnail = document.querySelector("#board-thumbnail");
-    const HTMLpagination = document.querySelector("#board-pagination");
-    const HTMLboardContract = document.querySelector("#board-contract");
-
-    HTMLid.innerHTML = "Chưa có thông tin";
-    HTMLnumber.innerHTML = `<p>Địa điểm này có 0 quảng cáo</p>`;
-    HTMLtitle.innerHTML = `Chưa có thông tin <span class="ms-2 badge bg-secondary" id="board-status">Chưa có thông tin</span></a>`;
-    HTMLaddr.innerHTML = `Chưa có thông tin để hiển thị`;
-    HTMLsize.innerHTML = "Chưa có thông tin";
-    HTMLqty.innerHTML = "Chưa có thông tin";
-    HTMLform.innerHTML = "Chưa có thông tin";
-    HTMLclassification.innerHTML = "Chưa có thông tin";
-    HTMLthumbnail.src = "";
-    HTMLboardContract.setAttribute("data-bs-content", ``);
-    const popover = new bootstrap.Popover(HTMLboardContract);
-    popover.update();
-
-    selectedBoard = undefined;
-    selectedLocation = undefined;
-    getReportTable(e, 3, true);
-  }
 });
 
 //Submit form handle
@@ -1271,21 +1516,28 @@ formSubmit.addEventListener("click", async (e) => {
   const respondJSON = await respond.json();
   console.log(respondJSON);
 
+  const selectedArea = JSON.parse(selectedLocation.properties.area);
+  const selectedAddr = `${selectedLocation.properties.address}, ${selectedArea.ward}, ${selectedArea.district}`;
   const isExist = selfReportedLocation.features.find((location) => {
-    return location.properties.address == selectedLocation.properties.address;
+    return location.properties.address == selectedAddr;
   });
   if (!isExist) {
     const area = JSON.parse(selectedLocation.properties.area);
     const fullAddr = `${selectedLocation.properties.address}, ${area.ward}, ${area.district}`;
     selfReportedLocation.features.push({
       type: "Feature",
-      properties: { type: 1, address: fullAddr},
+      properties: {
+        type: 1,
+        address: fullAddr,
+        lng: respondJSON.lng,
+        lat: respondJSON.lat,
+      },
       geometry: {
         coordinates: [selectedLocation.lngLat.lng, selectedLocation.lngLat.lat],
         type: "Point",
       },
     });
-    map.getSource("selfReported").setData(selfReportedLocation);
+    map.getSource("reported").setData(selfReportedLocation);
   }
 
   localStorage.setItem(
@@ -1333,11 +1585,10 @@ formSubmit.addEventListener("click", async (e) => {
       item.addEventListener("click", viewDetailButtonEvent);
     });
   });
-  //Re fetch data
-  const { sipulated, nonSipulated, reported } = await fetchDataFromServer();
-  map.getSource("sipulated").setData(JSON.parse(sipulated));
-  map.getSource("nonSipulated").setData(JSON.parse(nonSipulated));
-  map.getSource("reported").setData(JSON.parse(reported));
+  // //Re fetch data
+  // const { sipulated, nonSipulated} = await fetchDataFromServer();
+  // map.getSource("sipulated").setData(JSON.parse(sipulated));
+  // map.getSource("nonSipulated").setData(JSON.parse(nonSipulated));
 
   if (selectedBoard) {
     const boardStatusHTML = document.querySelector("#board-status");
@@ -1386,23 +1637,6 @@ formRandomBtn.addEventListener("click", async (e) => {
     formData.append("files", files[i]);
   }
 
-  let selfReportedLocation = localStorage.getItem("reportedLocation");
-  if (selfReportedLocation == undefined) {
-    selfReportedLocation = {
-      type: "FeatureCollection",
-      features: [],
-    };
-  } else {
-    selfReportedLocation = JSON.parse(selfReportedLocation);
-  }
-
-  let selfReportRandomData = localStorage.getItem("reportedRandomData");
-  if (selfReportRandomData == undefined || selfReportRandomData == null) {
-    selfReportRandomData = [];
-  } else {
-    selfReportRandomData = JSON.parse(selfReportRandomData);
-  }
-
   formData.append("name", name);
   formData.append("email", email);
   formData.append("phone", phone);
@@ -1422,7 +1656,24 @@ formRandomBtn.addEventListener("click", async (e) => {
   const respondJSON = await respond.json();
   console.log(respondJSON);
   const returnData = respondJSON.newReport;
-  console.log(returnData)
+  console.log(returnData);
+
+  let selfReportedLocation = localStorage.getItem("reportedLocation");
+  if (selfReportedLocation == undefined) {
+    selfReportedLocation = {
+      type: "FeatureCollection",
+      features: [],
+    };
+  } else {
+    selfReportedLocation = JSON.parse(selfReportedLocation);
+  }
+
+  let selfReportRandomData = localStorage.getItem("reportedRandomData");
+  if (selfReportRandomData == undefined || selfReportRandomData == null) {
+    selfReportRandomData = [];
+  } else {
+    selfReportRandomData = JSON.parse(selfReportRandomData);
+  }
   const isExists = selfReportedLocation.features.find((location) => {
     return (
       location.geometry.coordinates[0] == returnData.long &&
@@ -1430,16 +1681,20 @@ formRandomBtn.addEventListener("click", async (e) => {
     );
   });
   if (!isExists) {
-    
     selfReportedLocation.features.push({
       type: "Feature",
-      properties: { type: 2, address:returnData.address },
+      properties: {
+        type: 2,
+        address: returnData.address,
+        lng: returnData.long,
+        lat: returnData.lat,
+      },
       geometry: {
-        coordinates: [returnData.lat, returnData.long],
+        coordinates: [returnData.long, returnData.lat],
         type: "Point",
       },
     });
-    map.getSource("selfReported").setData(selfReportedLocation);
+    map.getSource("reported").setData(selfReportedLocation);
   }
   localStorage.setItem(
     "reportedLocation",
@@ -1497,4 +1752,3 @@ reportTab.addEventListener("click", (e) => {
     getReportTable(e, 3);
   }
 });
-
