@@ -10,6 +10,8 @@ let prevReportTableState = 3;
 let selectedLocation = undefined;
 let selectedBoard = undefined;
 let isClickPoint = 0;
+let mapBeforeLayer = false;
+let controlMapBeforeLayer = 0;
 const sipulatedPopup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false,
@@ -119,10 +121,14 @@ const mouseLeaveEventUnclustered = (layer) => {
 };
 
 const getInfoOnclickUnclustered = async (e) => {
+  controlMapBeforeLayer += 1;
+  console.log("layer");
   //Display report button
   document.querySelector("#location-report").style.display = "inline-block";
   document.querySelector("#board-report").style.display = "inline-block";
-  isClickPoint = 1;
+  if (mapBeforeLayer == false) {
+    isClickPoint = 1;
+  }
 
   //Get the data and change UI
   selectedLocation = { ...e.features[0], lngLat: e.lngLat };
@@ -571,7 +577,9 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   let data;
   if (
     flag == 3 ||
-    (flag == 2 && localStorage.getItem("reportedData") == null&&selfReportedRandomData != null)
+    (flag == 2 &&
+      localStorage.getItem("reportedData") == null &&
+      selfReportedRandomData != null)
   ) {
     data = JSON.stringify([]);
   } else {
@@ -579,7 +587,7 @@ const getReportTable = async (e, flag, resetReportInfo = undefined) => {
   }
 
   const reportData = JSON.parse(data);
-  console.log(reportData)
+  console.log(reportData);
 
   const handled = reportData.filter((item) => {
     return item.status == "Đã xử lý";
@@ -977,7 +985,9 @@ map.on("load", async () => {
   map.on("click", "reported-unclustered", async (e) => {
     document.querySelector("#report-view-detail").style.display =
       "inline-block";
-    isClickPoint = 1;
+    if (mapBeforeLayer == false) {
+      isClickPoint = 1;
+    }
     const tempData = e.features[0];
     const { type, lng, lat } = e.features[0].properties;
     let reportIdArr;
@@ -1285,8 +1295,12 @@ locationInput.addEventListener("keypress", (e) => {
 //Foward geo-location
 const fowardMaker = new mapboxgl.Marker({ color: "red" });
 map.on("click", async (e) => {
+  if (controlMapBeforeLayer == 0) {
+    mapBeforeLayer = true;
+  }
+  console.log("map");
   //Reset Report section
-  if (isClickPoint == 1) {
+  if (isClickPoint == 1 && mapBeforeLayer == false) {
     isClickPoint = 0;
   } else if (
     isClickPoint == 0 &&
