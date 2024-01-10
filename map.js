@@ -1391,13 +1391,6 @@ let formValidation = (data) => {
     alert("Số điện thoại không hợp lệ");
     return false;
   }
-  const response = grecaptcha.getResponse();
-  if (response.length == 0) {
-    console.log("captcha failed");
-    document.querySelector("#captchaError").innerHTML =
-      "<span style='color:red'>Vui lòng thực hiện captcha</span>";
-    return false;
-  }
   return true;
 };
 
@@ -1443,6 +1436,25 @@ const viewDetailButtonEvent = (event) => {
 const formSubmit = document.querySelector("#report-submit");
 formSubmit.addEventListener("click", async (e) => {
   e.preventDefault();
+
+  //G-recaptcha
+  let widgetId = getWidgetId('recaptcha');
+  const response = grecaptcha.getResponse(widgetId);
+  if (response.length == 0) {
+    console.log("captcha failed");
+    document.querySelector("#captchaError").innerHTML =
+      "<span style='color:red'>Vui lòng thực hiện captcha</span>";
+    return false;
+  }
+  var thisModal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById('reportModal-captcha')
+  );
+  thisModal.hide();
+  var nextModal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById('reportModal-finish')
+  );
+  nextModal.show();
+  grecaptcha.reset(widgetId);
 
   //Reset form result
   const formSubmitResult = document.querySelector("#form-submit-result");
@@ -1603,6 +1615,25 @@ formSubmit.addEventListener("click", async (e) => {
 const formRandomBtn = document.querySelector("#report-submit-random-location");
 formRandomBtn.addEventListener("click", async (e) => {
   e.preventDefault();
+
+  //G-recaptcha
+  let widgetId = getWidgetId('recaptcha-random-location');
+  const response = grecaptcha.getResponse(widgetId);
+  if (response.length == 0) {
+    console.log("captcha failed");
+    document.querySelector("#captchaError-random-location").innerHTML =
+      "<span style='color:red'>Vui lòng thực hiện captcha</span>";
+    return false;
+  }
+  var thisModal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById('reportModal-captcha-random-location')
+  );
+  thisModal.hide();
+  var nextModal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById('reportModal-finish-random-location')
+  );
+  nextModal.show();
+  grecaptcha.reset(widgetId);
 
   //Reset form result
   const formSubmitResult = document.querySelector(

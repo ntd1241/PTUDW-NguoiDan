@@ -378,12 +378,12 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body d-flex flex-column justify-content-center align-items-center">
-            <div class="g-recaptcha" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm" data-callback="verifyCaptcha"></div>
+            <div class="g-recaptcha" id="recaptcha" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm" data-callback="verifyCaptcha"></div>
             <div id="captchaError"></div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-target="#reportModal-details" data-bs-toggle="modal">Quay trở lại</button>
-            <button class="btn btn-primary" data-bs-target="#reportModal-finish" data-bs-toggle="modal" id="report-submit">Hoàn tất</button>
+            <button class="btn btn-primary" id="report-submit">Hoàn tất</button>
           </div>
         </div>
       </div>
@@ -505,12 +505,12 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body d-flex flex-column justify-content-center align-items-center">
-            <div class="g-recaptcha" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm" data-callback="verifyCaptcha"></div>
-            <div id="captchaError"></div>
+            <div class="g-recaptcha" id="recaptcha-random-location" data-sitekey="6Lc5sw4pAAAAAGqHdbtzvpWKbIygIzi-sQogKIQm" data-callback="verifyCaptchaRandomLocation"></div>
+            <div id="captchaError-random-location"></div>
           </div>
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-target="#reportModal-details-random-location" data-bs-toggle="modal">Quay trở lại</button>
-            <button class="btn btn-primary" data-bs-target="#reportModal-finish-random-location" data-bs-toggle="modal" id="report-submit-random-location">Hoàn tất</button>
+            <button class="btn btn-primary" id="report-submit-random-location">Hoàn tất</button>
           </div>
         </div>
       </div>

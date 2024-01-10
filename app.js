@@ -115,8 +115,22 @@ document.querySelector('#second-form-random-location').addEventListener('submit'
   checkValidateForm(e,'reportModal-details-random-location','reportModal-captcha-random-location')
 })
 
-function verifyCaptcha() {
-  console.log('verified');
-  document.querySelector('#g-recaptcha-error').innerHTML = '';
+function getWidgetId(elementId) {
+  const recaptchaBoxes = document.querySelectorAll('.g-recaptcha');
+  const targetBox = document.querySelector(`#${elementId}`);
+  for (let i = 0; i < recaptchaBoxes.length; i++) {
+    if (recaptchaBoxes[i].id === targetBox.id) {
+      return i;
+    }
+  }
 }
 
+function verifyCaptcha() {
+  console.log('verified');
+  document.querySelector("#captchaError").innerHTML = '';
+}
+
+function verifyCaptchaRandomLocation() {
+  console.log('verified');
+  document.querySelector("#captchaError-random-location").innerHTML = '';
+}
