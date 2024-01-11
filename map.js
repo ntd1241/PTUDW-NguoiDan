@@ -485,17 +485,26 @@ const searchFunc = async (e) => {
     query
   )}&pretty=1&no_annotations=1`;
 
-  const respond = await fetch(requestUrl);
+  const respond = await fetch(
+    `https://rsapi.goong.io/geocode?address=${encodeURIComponent(
+      query
+    )}&api_key=7iVK3dd86pgsEJggbfiky0xOrcRa9xJMNTtX22nS`
+  );
   try {
     if (!respond.ok) {
       throw new Error("Network response was not ok");
     }
     const data = await respond.json();
-    if (data.results.length == 0) {
+    const results = data.results;
+    if (results.length == 0) {
       alert("Không tìm thấy địa chỉ tương ứng");
       return;
     }
-    const geometry = data.results[0].geometry;
+    // if (data.results.length == 0) {
+
+    // }
+    // const geometry = data.results[0].geometry;
+    const geometry = results[0].geometry.location;
     map.flyTo({ center: geometry });
   } catch (err) {
     console.log(err);
