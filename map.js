@@ -1349,9 +1349,9 @@ map.on("click", async (e) => {
   }
   const { lat, lng } = e.lngLat;
   fowardMaker.setLngLat([lng, lat]).addTo(map);
-  const query = `${lat}+${lng}`;
-  const apiUrl = "https://api.opencagedata.com/geocode/v1/json";
-  const apiKey = "8c7c7c956fdd4a598e2301d88cb48135";
+  // const query = `${lat}+${lng}`;
+  // const apiUrl = "https://api.opencagedata.com/geocode/v1/json";
+  // const apiKey = "8c7c7c956fdd4a598e2301d88cb48135";
   // const requestUrl = `${apiUrl}?key=${apiKey}&q=${encodeURIComponent(
   //   query
   // )}&pretty=1&no_annotations=1`;
@@ -1363,14 +1363,9 @@ map.on("click", async (e) => {
     }
     const data = await respond.json();
     const result = data.results;
-    console.log(result);
     const { name, address } = result[0];
     const fullAddr = `${name}, ${address}`;
-    // let [locationName, ...locationAddr] = data.results[0].formatted.split(",");
-    // locationAddr = locationAddr.join(",");
-    // if (locationName === "unnamed road") {
-    //   locationName = "Chưa có thông tin đường trên bản đồ";
-    // }
+
     const HTMLlocationName = document.querySelector("#location-name");
     const HTMLlocationAddr = document.querySelector("#location-address");
     HTMLlocationName.innerHTML = name;
