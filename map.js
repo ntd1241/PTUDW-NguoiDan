@@ -1030,6 +1030,8 @@ map.on("load", async () => {
     const HTMLModalImg2 = document.querySelector("#report-detail-second-img");
     const HTMLModalMethod = document.querySelector("#report-detail-method");
 
+    console.log(rpData[0]);
+
     if (rpData.length == 0) {
       HTMLReportType.innerHTML = "Chưa có thông tin";
       HTMLReportName.innerHTML = "Chưa có thông tin";
@@ -1045,7 +1047,7 @@ map.on("load", async () => {
 
       const images =
         rpData[0].image != null ? rpData[0].image.split(", ") : undefined;
-      HTMLModalContent.innerHTML = rpData[0].reportContent;
+      HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${rpData[0].phone}</p><p>Email: ${rpData[0].email}</p><b>Loại: ${rpData[0].ReportType.type}</b><p>${rpData[0].reportContent}</p> <p>`;
       if (images == undefined) {
         HTMLModalImg1.src = "";
         HTMLModalImg2.src = "";
@@ -1113,7 +1115,7 @@ map.on("load", async () => {
           rpData[page - 1].image != null
             ? rpData[page - 1].image.split(", ")
             : undefined;
-        HTMLModalContent.innerHTML = rpData[page - 1].reportContent;
+        HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${rpData[page-1].phone}</p><p>Email: ${rpData[page-1].email}</p><b>Loại: ${rpData[page-1].ReportType.type}</b><p>${rpData[page-1].reportContent}</p> <p>`;
         if (images == undefined) {
           HTMLModalImg1.src = "";
           HTMLModalImg2.src = "";
@@ -1161,7 +1163,7 @@ map.on("load", async () => {
         rpData[page - 1].image != null
           ? rpData[page - 1].image.split(", ")
           : undefined;
-      HTMLModalContent.innerHTML = rpData[page - 1].reportContent;
+          HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${rpData[page-1].phone}</p><p>Email: ${rpData[page-1].email}</p><b>Loại: ${rpData[page-1].ReportType.type}</b><p>${rpData[page-1].reportContent}</p> <p>`;
       if (images == undefined) {
         HTMLModalImg1.src = "";
         HTMLModalImg2.src = "";
@@ -1204,7 +1206,7 @@ map.on("load", async () => {
         rpData[page - 1].image != null
           ? rpData[page - 1].image.split(", ")
           : undefined;
-      HTMLModalContent.innerHTML = rpData[page - 1].reportContent;
+          HTMLModalContent.innerHTML = `<b>${rpData[0].name}</b><p>SĐT: ${rpData[page-1].phone}</p><p>Email: ${rpData[page-1].email}</p><b>Loại: ${rpData[page-1].ReportType.type}</b><p>${rpData[page-1].reportContent}</p> <p>`;
       if (images == undefined) {
         HTMLModalImg1.src = "";
         HTMLModalImg2.src = "";
@@ -1397,7 +1399,7 @@ let formValidation = (data) => {
     alert("Bạn chưa điền tất cả trường");
     return false;
   }
-  const numFiles = document.querySelector("#form-report-images").files.length;
+  const numFiles = document.querySelector(`${data.imageId}`).files.length;
   if (numFiles > 2) {
     alert("Quá nhiều hình");
     return false;
@@ -1495,9 +1497,9 @@ formSubmit.addEventListener("click", async (e) => {
 
   const type = document.querySelector("#form-report-type").value;
   const content = editor.getData();
-
+  const imageId = "#form-report-images";
   //Validate
-  if (!formValidation({ name, email, phone, type, content })) {
+  if (!formValidation({ name, email, phone, type, content, imageId })) {
     formSubmitResult.innerHTML = `<h6 class="mb-3 text-danger"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn chưa được gửi, vui lòng thực hiện lại</h6>`;
     return;
   }
@@ -1684,6 +1686,13 @@ formRandomBtn.addEventListener("click", async (e) => {
   const files = document.querySelector(
     "#form-report-images-random-location"
   ).files;
+
+  const imageId = "#form-report-images-random-location";
+  //Validate
+  if (!formValidation({ name, email, phone, type, content, imageId })) {
+    formSubmitResult.innerHTML = `<h6 class="mb-3 text-danger"><span><i class="fa-regular fa-circle-check"></i></span> Báo cáo của bạn chưa được gửi, vui lòng thực hiện lại</h6>`;
+    return;
+  }
   const formData = new FormData();
   for (let i = 0; i < files.length; i++) {
     formData.append("files", files[i]);
