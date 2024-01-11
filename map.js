@@ -1349,31 +1349,29 @@ map.on("click", async (e) => {
   }
   const { lat, lng } = e.lngLat;
   fowardMaker.setLngLat([lng, lat]).addTo(map);
-  const query = `${lat}+${lng}`;
-  const apiUrl = "https://api.opencagedata.com/geocode/v1/json";
-  const apiKey = "8c7c7c956fdd4a598e2301d88cb48135";
-  const requestUrl = `${apiUrl}?key=${apiKey}&q=${encodeURIComponent(
-    query
-  )}&pretty=1&no_annotations=1`;
+  // const query = `${lat}+${lng}`;
+  // const apiUrl = "https://api.opencagedata.com/geocode/v1/json";
+  // const apiKey = "8c7c7c956fdd4a598e2301d88cb48135";
+  // const requestUrl = `${apiUrl}?key=${apiKey}&q=${encodeURIComponent(
+  //   query
+  // )}&pretty=1&no_annotations=1`;
+  const requestUrl = `https://rsapi.goong.io/Geocode?latlng=${lat},%20${lng}&api_key=7iVK3dd86pgsEJggbfiky0xOrcRa9xJMNTtX22nS`;
   const respond = await fetch(requestUrl);
   try {
     if (!respond.ok) {
       throw new Error("Network response was not ok");
     }
     const data = await respond.json();
+    const result = data.results;
+    const { name, address } = result[0];
+    const fullAddr = `${name}, ${address}`;
 
-    let [locationName, ...locationAddr] = data.results[0].formatted.split(",");
-    locationAddr = locationAddr.join(",");
-    if (locationName === "unnamed road") {
-      locationName = "Chưa có thông tin đường trên bản đồ";
-    }
     const HTMLlocationName = document.querySelector("#location-name");
     const HTMLlocationAddr = document.querySelector("#location-address");
-    HTMLlocationName.innerHTML = locationName;
-    HTMLlocationAddr.innerHTML = locationAddr;
+    HTMLlocationName.innerHTML = name;
+    HTMLlocationAddr.innerHTML = address;
     // Change in report random location form
-    document.querySelector("#form-address-random-location").value =
-      locationName + ", " + locationAddr;
+    document.querySelector("#form-address-random-location").value = fullAddr;
     document.querySelector("#form-lng-random-location").value = lng;
     document.querySelector("#form-lat-random-location").value = lat;
   } catch (err) {
@@ -1452,7 +1450,7 @@ formSubmit.addEventListener("click", async (e) => {
   e.preventDefault();
 
   //G-recaptcha
-  let widgetId = getWidgetId('recaptcha');
+  let widgetId = getWidgetId("recaptcha");
   const response = grecaptcha.getResponse(widgetId);
   if (response.length == 0) {
     console.log("captcha failed");
@@ -1461,11 +1459,11 @@ formSubmit.addEventListener("click", async (e) => {
     return false;
   }
   var thisModal = bootstrap.Modal.getOrCreateInstance(
-    document.getElementById('reportModal-captcha')
+    document.getElementById("reportModal-captcha")
   );
   thisModal.hide();
   var nextModal = bootstrap.Modal.getOrCreateInstance(
-    document.getElementById('reportModal-finish')
+    document.getElementById("reportModal-finish")
   );
   nextModal.show();
   grecaptcha.reset(widgetId);
@@ -1631,7 +1629,7 @@ formRandomBtn.addEventListener("click", async (e) => {
   e.preventDefault();
 
   //G-recaptcha
-  let widgetId = getWidgetId('recaptcha-random-location');
+  let widgetId = getWidgetId("recaptcha-random-location");
   const response = grecaptcha.getResponse(widgetId);
   if (response.length == 0) {
     console.log("captcha failed");
@@ -1640,11 +1638,11 @@ formRandomBtn.addEventListener("click", async (e) => {
     return false;
   }
   var thisModal = bootstrap.Modal.getOrCreateInstance(
-    document.getElementById('reportModal-captcha-random-location')
+    document.getElementById("reportModal-captcha-random-location")
   );
   thisModal.hide();
   var nextModal = bootstrap.Modal.getOrCreateInstance(
-    document.getElementById('reportModal-finish-random-location')
+    document.getElementById("reportModal-finish-random-location")
   );
   nextModal.show();
   grecaptcha.reset(widgetId);
