@@ -195,7 +195,8 @@ const getInfoOnclickUnclustered = async (e) => {
         adsData[0].end != ""
           ? adsData[0].end.split("T")[0]
           : "Chưa có thông tin"
-      }`
+      }
+      Công ty`
     );
     const popover = new bootstrap.Popover(HTMLboardContract);
     popover.update();
